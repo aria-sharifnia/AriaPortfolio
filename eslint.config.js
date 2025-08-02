@@ -21,6 +21,11 @@ export default [
         ...globals.node,
       },
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     plugins: {
       prettier: pluginPrettier,
     },
