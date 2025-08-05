@@ -1,10 +1,12 @@
-import './styles/globals.css'
+import CustomCursor from './components/common/CustomCursor/CustomCursor'
+import HeroSection from './sections/HomeSection'
 
 function App() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-white text-black">
-      <h1 className="text-4xl font-bold">Welcome to My Portfolio</h1>
-    </main>
+    <>
+      <CustomCursor />
+      <HeroSection />
+    </>
   )
 }
 
