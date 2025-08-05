@@ -1,3 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-navy-500: #123f6b;
+  --color-navy-700: #0b2945;
+  --color-brand-500: #0bd9c0;
+}
+
+*,
+a,
+button,
+input,
+textarea,
+select {
+  cursor: none;
+}

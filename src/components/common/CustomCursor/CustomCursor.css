@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+
+.cursor-dot {
+  @apply fixed w-2 h-2 rounded-full pointer-events-none z-[10001]
+         transition-[width,height] duration-200;
+  background: rgb(34 211 238);
+}
+
+.cursor-ring {
+  @apply fixed w-6 h-6 rounded-full pointer-events-none z-[10000]
+         transition-[width,height] duration-200;
+  border: 2px solid rgb(34 211 238 / 0.5);
+}
