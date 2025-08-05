@@ -77,19 +77,12 @@ const HomeSection: FC = () => (
         create exceptional user experiences
       </p>
       <div className="mt-14 flex flex-wrap justify-center gap-8">
-        <PrimaryButton
-          href="#projects"
-className={primaryButton}
-        >
+        <PrimaryButton href="#projects" className={primaryButton}>
           View My Work
           <ArrowDown className="h-5 w-5 -mt-0.5" strokeWidth={2} />
         </PrimaryButton>
 
-        <PrimaryButton
-          href="/Alex-Resume.pdf"
-          download
-          className={secondaryButton}
-        >
+        <PrimaryButton href="/Alex-Resume.pdf" download className={secondaryButton}>
           Download My Resume
           <Download className="h-5 w-5 -mt-0.5" strokeWidth={2} />
         </PrimaryButton>
