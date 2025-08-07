@@ -1,28 +1,28 @@
-import type { FC } from 'react';
-import { ArrowDown, Download, Code2 } from 'lucide-react';
-import PrimaryButton from '../components/common/PrimaryButton/PrimaryButton';
-import { NAV_ITEMS } from '../constants/navigation';
-import { useHome } from '../hooks/useHome';
-import { mediaUrl } from '../api/strapi';
-import { downloadFile } from '../utils/download';
+import type { FC } from 'react'
+import { ArrowDown, Download, Code2 } from 'lucide-react'
+import PrimaryButton from '../components/common/PrimaryButton/PrimaryButton'
+import { NAV_ITEMS } from '../constants/navigation'
+import { useHome } from '../hooks/useHome'
+import { mediaUrl } from '../api/strapi'
+import { downloadFile } from '../utils/download'
 
 const baseButton =
-  'rounded-full px-10 py-4 text-base font-semibold text-white shadow-md transition-transform duration-300 hover:scale-110';
-const primaryButton = `${baseButton} bg-teal-400`;
-const secondaryButton = `${baseButton} border border-white bg-white/10 backdrop-blur-sm`;
+  'rounded-full px-10 py-4 text-base font-semibold text-white shadow-md transition-transform duration-300 hover:scale-110'
+const primaryButton = `${baseButton} bg-teal-400`
+const secondaryButton = `${baseButton} border border-white bg-white/10 backdrop-blur-sm`
 
 const HomeSection: FC = () => {
-  const { data } = useHome();
-  const resumeHref = mediaUrl(data?.resume?.url);
+  const { data } = useHome()
+  const resumeHref = mediaUrl(data?.resume?.url)
 
   async function handleResumeClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    if (!resumeHref) return;
-    e.preventDefault();
+    if (!resumeHref) return
+    e.preventDefault()
     try {
-      await downloadFile(resumeHref, 'Aria_Sharifnia_Resume.pdf');
+      await downloadFile(resumeHref, 'Aria_Sharifnia_Resume.pdf')
     } catch (err) {
-      console.error(err);
-      window.open(resumeHref, '_blank', 'noopener,noreferrer');
+      console.error(err)
+      window.open(resumeHref, '_blank', 'noopener,noreferrer')
     }
   }
   return (
@@ -77,7 +77,12 @@ const HomeSection: FC = () => {
             <ArrowDown className="h-5 w-5 -mt-0.5" strokeWidth={2} />
           </PrimaryButton>
 
-          <PrimaryButton href={resumeHref || '#'} onClick={handleResumeClick} download className={secondaryButton}>
+          <PrimaryButton
+            href={resumeHref || '#'}
+            onClick={handleResumeClick}
+            download
+            className={secondaryButton}
+          >
             {data?.downloadResumeLabel}
             <Download className="h-5 w-5 -mt-0.5" strokeWidth={2} />
           </PrimaryButton>
@@ -88,13 +93,13 @@ const HomeSection: FC = () => {
           className="h-8 w-8 text-white animate-bounce cursor-pointer"
           strokeWidth={2}
           onClick={() => {
-            const nextSection = document.querySelector('#about');
-            nextSection?.scrollIntoView({ behavior: 'smooth' });
+            const nextSection = document.querySelector('#about')
+            nextSection?.scrollIntoView({ behavior: 'smooth' })
           }}
         />
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default HomeSection;
+export default HomeSection
