@@ -3,16 +3,36 @@ export const STRAPI_BASE = (import.meta.env.VITE_STRAPI_URL as string | undefine
   ''
 )
 
-if (!STRAPI_BASE) {
-  console.warn('Missing VITE_STRAPI_URL')
+if (!STRAPI_BASE && import.meta.env.PROD) {
+  throw new Error('VITE_STRAPI_URL is missing in production build')
 }
 
-export async function get<T>(path: string): Promise<T> {
-  const url = `${STRAPI_BASE}${path}`
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Strapi ${res.status} for ${path}`)
-  return res.json() as Promise<T>
+function buildHeaders(init?: HeadersInit) {
+  const h = new Headers(init)
+  h.set('Content-Type', 'application/json')
+
+  const token = import.meta.env.VITE_STRAPI_TOKEN as string | undefined
+  if (token) h.set('Authorization', `Bearer ${token}`)
+
+  return h
 }
 
-export const mediaUrl = (p?: string) =>
-  p?.startsWith('http') ? p : `${STRAPI_BASE ?? ''}${p ?? ''}`
+export async function get<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const base = STRAPI_BASE ?? ''
+  const url = `${base}${path}`
+  const res = await fetch(url, {
+    ...init,
+    headers: buildHeaders(init.headers),
+  })
+
+  if (!res.ok) {
+    throw new Error(`Strapi ${res.status} ${res.statusText} for ${path}`)
+  }
+  return (await res.json()) as T
+}
+
+export function mediaUrl(path?: string | null): string | undefined {
+  if (!path) return undefined
+  if (/^https?:\/\//i.test(path)) return path
+  return `${import.meta.env.VITE_STRAPI_URL}${path}`
+}
