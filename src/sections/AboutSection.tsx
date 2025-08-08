@@ -10,9 +10,7 @@ const AboutSection: FC = () => {
     <section id="about" className="w-full bg-gray-50">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="text-center">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-navy-700">
-            About Me
-          </h2>
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-navy-700">About Me</h2>
           <div className="mx-auto mt-3 h-1 w-20 rounded bg-teal-400" />
         </div>
 
@@ -22,9 +20,7 @@ const AboutSection: FC = () => {
           </div>
 
           <div className="md:col-span-3">
-            <h3 className="text-2xl font-bold text-navy-800">
-              {data?.introTitle}
-            </h3>
+            <h3 className="text-2xl font-bold text-navy-800">{data?.introTitle}</h3>
 
             {data?.introParagraph1 && (
               <p className="mt-4 text-gray-700 leading-8">{data.introParagraph1}</p>
@@ -61,10 +57,7 @@ const AboutSection: FC = () => {
                             hover:scale-125 focus:scale-125 focus:outline-none
                             cursor-pointer"
                   >
-                    <InlineSvg
-                      src={mediaUrl(s.iconSVG?.url ?? undefined)}
-                      className="size-9"
-                    />
+                    <InlineSvg src={mediaUrl(s.iconSVG?.url ?? undefined)} className="size-9" />
                   </a>
                 ))}
               </div>

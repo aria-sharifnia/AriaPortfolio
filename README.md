@@ -21,11 +21,13 @@ A personal portfolio website built with **React**, **TypeScript**, **Vite**, and
 > If you do not have credentials, you won't be able to run the app locally.
 
 ### 1) Install dependencies
+
 ```bash
 npm install
 ```
 
 ### 2) Environment variables
+
 Create a `.env.local` in the project root. This file is **gitignored** and not included in the repository.
 
 ```dotenv
@@ -37,6 +39,7 @@ VITE_STRAPI_URL=
 - The app will **not** function without a valid `VITE_STRAPI_URL` that points to the private backend.
 
 ### 3) Start the dev server (will fail without valid env)
+
 ```bash
 npm run dev
 ```

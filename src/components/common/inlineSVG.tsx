@@ -26,7 +26,10 @@ export default function InlineSvg({ src, className, useCurrentColor = false }: P
           base = base
             .replace(/\sfill="[^"]*"/gi, ' fill="currentColor"')
             .replace(/\sstroke="[^"]*"/gi, ' stroke="currentColor"')
-            .replace(/<svg([^>]*)>/i, (_m, attrs) => `<svg${attrs} fill="currentColor" stroke="currentColor">`)
+            .replace(
+              /<svg([^>]*)>/i,
+              (_m, attrs) => `<svg${attrs} fill="currentColor" stroke="currentColor">`
+            )
         }
 
         if (alive) setMarkup(base)
@@ -35,7 +38,9 @@ export default function InlineSvg({ src, className, useCurrentColor = false }: P
       }
     }
     run()
-    return () => { alive = false }
+    return () => {
+      alive = false
+    }
   }, [src, className, useCurrentColor])
 
   return <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: markup }} />
