@@ -1,6 +1,7 @@
 import CustomCursor from './components/common/CustomCursor/CustomCursor'
 import AboutSection from './sections/AboutSection'
 import HeroSection from './sections/HomeSection'
+import SkillsSection from './sections/SkillsSection'
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <CustomCursor />
       <HeroSection />
       <AboutSection />
+      <SkillsSection />
     </>
   )
 }

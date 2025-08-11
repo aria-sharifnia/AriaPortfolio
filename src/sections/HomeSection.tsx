@@ -31,7 +31,14 @@ const HomeSection: FC = () => {
       className="relative isolate w-full min-h-screen overflow-hidden text-gray-100
                  bg-gradient-to-br from-[#164a7b] via-[#123f6b] to-[#0b2945]"
     >
-      <nav className="fixed inset-x-0 top-0 z-50 h-16 flex items-center justify-between bg-gray-100/95 backdrop-blur-sm border-b border-gray-200 px-8">
+      <nav
+        className="
+    fixed inset-x-0 top-0 z-50 h-16 flex items-center justify-between
+    bg-[#F3F7FB]
+    border-b border-[#DDE5EE]
+    text-navy-700 shadow-sm px-8
+  "
+      >
         <a className="bg-gradient-to-br from-[#164a7b] via-[#123f6b] to-[#0b2945] bg-clip-text text-transparent select-none text-2xl sm:text-3xl font-extrabold leading-none tracking-tight">
           {data?.nameLogo}
         </a>
