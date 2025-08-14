@@ -6,6 +6,15 @@
   --color-brand-500: #0bd9c0;
 }
 
+:root {
+  --header-h: 64px;
+}
+@media (min-width: 768px) {
+  :root {
+    --header-h: 72px;
+  }
+}
+
 *,
 a,
 button,
@@ -18,9 +27,21 @@ select {
 html {
   scroll-behavior: smooth;
 }
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+}
+
+[id] {
+  scroll-margin-top: var(--header-h);
+}
+
+body {
+  color: #0b2945;
+  background: #f3f7fb;
+  min-height: 100svh;
+}
+
+:root {
 }

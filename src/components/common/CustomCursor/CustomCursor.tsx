@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import './CustomCursor.css'
 
 const CustomCursor = () => {
@@ -6,30 +7,50 @@ const CustomCursor = () => {
   const ring = useRef<HTMLDivElement>(null)
   const target = useRef({ x: 0, y: 0 })
   const ringPos = useRef({ x: 0, y: 0 })
+  const [container, setContainer] = useState<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const el = document.createElement('div')
+    el.id = 'cursor-layer'
+    Object.assign(el.style, {
+      position: 'fixed',
+      inset: '0',
+      pointerEvents: 'none',
+      zIndex: '2147483647',
+    } as Partial<CSSStyleDeclaration>)
+    document.body.appendChild(el)
+    setContainer(el)
+    return () => el.remove()
+  }, [])
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
       const { clientX: x, clientY: y } = e
       target.current.x = x
       target.current.y = y
-      dot.current!.style.transform = `translate(${x - 4}px, ${y - 4}px)`
-      const el = e.target as HTMLElement
-      const isInteractive =
-        el.tagName === 'A' || el.tagName === 'BUTTON' || el.closest('nav') !== null
-
-      dot.current!.classList.toggle('cursor-hover', isInteractive)
-      ring.current!.classList.toggle('ring-hover', isInteractive)
+      if (dot.current) {
+        dot.current.style.left = `${x}px`
+        dot.current.style.top = `${y}px`
+      }
     }
-
     document.addEventListener('mousemove', handleMove, { passive: true })
 
     let raf = 0
     const animate = () => {
       ringPos.current.x += (target.current.x - ringPos.current.x) * 0.2
       ringPos.current.y += (target.current.y - ringPos.current.y) * 0.2
-
-      const { x, y } = ringPos.current
-      ring.current!.style.transform = `translate(${x - 12}px, ${y - 12}px)`
+      if (ring.current) {
+        ring.current.style.left = `${ringPos.current.x}px`
+        ring.current.style.top = `${ringPos.current.y}px`
+      }
+      const under = document.elementFromPoint(target.current.x, target.current.y)
+      const interactive =
+        !!under &&
+        !!(under as Element).closest(
+          'a,button,nav,[role="button"],[data-interactive],.cursor-pointer'
+        )
+      dot.current?.classList.toggle('cursor-hover', interactive)
+      ring.current?.classList.toggle('ring-hover', interactive)
 
       raf = requestAnimationFrame(animate)
     }
@@ -41,11 +62,14 @@ const CustomCursor = () => {
     }
   }, [])
 
-  return (
+  if (!container) return null
+
+  return createPortal(
     <>
-      <div ref={dot} className="cursor-dot" />
-      <div ref={ring} className="cursor-ring" />
-    </>
+      <div ref={dot} className="cursor-dot" aria-hidden="true" />
+      <div ref={ring} className="cursor-ring" aria-hidden="true" />
+    </>,
+    container
   )
 }
 

@@ -1,5 +1,5 @@
 import { get, mediaUrl } from './strapi'
-import type { PaletteKey } from '../theme/palettes'
+import type { PaletteKey } from '../theme/skillsPalettes'
 
 export type SkillItem = { text: string; level: number; icon: string | null }
 export type SkillsCategory = { title: string; palette: PaletteKey; items: SkillItem[] }

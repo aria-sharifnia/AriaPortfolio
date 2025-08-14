@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Section from '../components/layout/Section'
 import InlineSvg from '../components/common/inlineSVG'
 import { useSkill } from '../hooks/useSkill'
-import { colorsFor } from '../theme/palettes'
+import { colorsFor } from '../theme/skillsPalettes'
 
 type Bubble = {
   id: string
