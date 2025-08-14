@@ -1,7 +1,6 @@
 import type { FC } from 'react'
 import { ArrowDown, Download, Code2 } from 'lucide-react'
 import PrimaryButton from '../components/common/PrimaryButton/PrimaryButton'
-import { NAV_ITEMS } from '../constants/navigation'
 import { useHome } from '../hooks/useHome'
 import { mediaUrl } from '../api/strapi'
 import { downloadFile } from '../utils/download'
@@ -25,42 +24,13 @@ const HomeSection: FC = () => {
       window.open(resumeHref, '_blank', 'noopener,noreferrer')
     }
   }
+
   return (
-    <header
+    <section
       id="home"
       className="relative isolate w-full min-h-screen overflow-hidden text-gray-100
                  bg-gradient-to-br from-[#164a7b] via-[#123f6b] to-[#0b2945]"
     >
-      <nav
-        className="
-    fixed inset-x-0 top-0 z-50 h-16 flex items-center justify-between
-    bg-[#F3F7FB]
-    border-b border-[#DDE5EE]
-    text-navy-700 shadow-sm px-8
-  "
-      >
-        <a className="bg-gradient-to-br from-[#164a7b] via-[#123f6b] to-[#0b2945] bg-clip-text text-transparent select-none text-2xl sm:text-3xl font-extrabold leading-none tracking-tight">
-          {data?.nameLogo}
-        </a>
-        <ul className="flex gap-8">
-          {NAV_ITEMS.map(({ label, href }) => (
-            <li key={label}>
-              <a
-                href={href}
-                className="relative inline-block px-1 text-[15px] font-medium text-navy-500
-                           transition-transform duration-300 ease-out hover:scale-105
-                           after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5
-                           after:origin-left after:scale-x-0 after:bg-brand-500
-                           after:transition-transform after:duration-300 hover:after:scale-x-100
-                           hover:text-navy-700"
-              >
-                {label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
       <div className="relative mx-auto flex flex-col items-center justify-center min-h-screen w-full px-4 sm:w-5/6 lg:w-3/4 xl:w-2/3">
         <span className="mb-6 flex items-center justify-center w-22 h-22 rounded-full border border-white bg-white/10 backdrop-blur-sm">
           <Code2 className="w-10 h-10 text-white" strokeWidth={2} />
@@ -95,17 +65,18 @@ const HomeSection: FC = () => {
           </PrimaryButton>
         </div>
       </div>
+
       <div className="absolute bottom-6 flex justify-center w-full">
         <ArrowDown
+          data-interactive
           className="h-8 w-8 text-white animate-bounce cursor-pointer"
           strokeWidth={2}
           onClick={() => {
-            const nextSection = document.querySelector('#about')
-            nextSection?.scrollIntoView({ behavior: 'smooth' })
+            document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })
           }}
         />
       </div>
-    </header>
+    </section>
   )
 }
 

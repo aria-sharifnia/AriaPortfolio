@@ -1,13 +1,49 @@
 @import 'tailwindcss';
 
+:root {
+  --cursor-brand: var(--color-brand-500, #0bd9c0);
+}
+
 .cursor-dot {
-  @apply fixed w-2 h-2 rounded-full pointer-events-none z-[10001]
-         transition-[width,height] duration-200;
-  background: rgb(34 211 238);
+  @apply fixed rounded-full pointer-events-none z-[10001]
+         transition-[width,height] duration-200 mix-blend-difference;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.55)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.18));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cursor-brand) 24%, transparent);
+  will-change: transform;
 }
 
 .cursor-ring {
-  @apply fixed w-6 h-6 rounded-full pointer-events-none z-[10000]
-         transition-[width,height] duration-200;
-  border: 2px solid rgb(34 211 238 / 0.5);
+  @apply fixed rounded-full pointer-events-none z-[10000]
+         transition-[width,height] duration-200 mix-blend-difference;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #fff;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5)) drop-shadow(0 6px 18px rgba(0, 0, 0, 0.22));
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--cursor-brand) 35%, transparent),
+    inset 0 0 0 2px color-mix(in srgb, var(--cursor-brand) 25%, transparent);
+  will-change: transform;
+}
+
+.cursor-hover {
+  width: 14px;
+  height: 14px;
+}
+
+.ring-hover {
+  width: 56px;
+  height: 56px;
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--cursor-brand) 55%, transparent),
+    inset 0 0 0 3px color-mix(in srgb, var(--cursor-brand) 35%, transparent);
+}
+
+.cursor-dot,
+.cursor-ring {
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
 }
