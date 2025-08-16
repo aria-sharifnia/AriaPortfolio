@@ -1,8 +1,45 @@
 @import 'tailwindcss';
 
+:root {
+  --ripple-ms: 600ms;
+  --btn-scale-hover: 1.1;
+  --btn-scale-active: 0.985;
+}
+
+.btn {
+  @apply relative inline-flex items-center gap-2 overflow-hidden focus:outline-none select-none;
+  isolation: isolate;
+  transform: translateZ(0);
+  will-change: transform;
+  transition:
+    transform 300ms ease-out,
+    filter 200ms ease-out;
+}
+
+.btn:not(.btn--static):hover {
+  transform: scale(var(--btn-scale-hover));
+}
+
+.btn:not(.btn--static):active {
+  transform: scale(var(--btn-scale-active));
+}
+
+.btn__content {
+  @apply relative z-10 inline-flex items-center gap-2 leading-[1.1];
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.btn__content > svg {
+  @apply shrink-0 align-middle;
+}
+
 .ripple-span {
   @apply absolute rounded-full pointer-events-none bg-white/60;
-  animation: ripple 7000ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  z-index: 0;
+  contain: layout paint style;
+  will-change: transform, opacity;
+  animation: ripple var(--ripple-ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes ripple {
@@ -16,5 +53,18 @@
   100% {
     transform: scale(6);
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  .btn:not(.btn--static):hover,
+  .btn:not(.btn--static):active {
+    transform: none;
+  }
+  .ripple-span {
+    animation: none;
   }
 }

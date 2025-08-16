@@ -1,0 +1,31 @@
+@keyframes paperOpen {
+  0% {
+    transform: rotateX(-84deg) translateY(-6px) scale(0.985);
+    opacity: 0;
+  }
+  60% {
+    transform: rotateX(8deg) translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+@keyframes paperClose {
+  0% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(-84deg) translateY(-6px) scale(0.985);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reduce-motion\\:no-anim {
+    animation: none !important;
+    transform: none !important;
+  }
+}

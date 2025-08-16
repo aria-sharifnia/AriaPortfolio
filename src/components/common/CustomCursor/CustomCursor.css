@@ -5,8 +5,7 @@
 }
 
 .cursor-dot {
-  @apply fixed rounded-full pointer-events-none z-[10001]
-         transition-[width,height] duration-200 mix-blend-difference;
+  @apply fixed rounded-full pointer-events-none z-[10001] transition-[width,height] duration-200 mix-blend-difference;
   width: 12px;
   height: 12px;
   background: #fff;
@@ -16,8 +15,7 @@
 }
 
 .cursor-ring {
-  @apply fixed rounded-full pointer-events-none z-[10000]
-         transition-[width,height] duration-200 mix-blend-difference;
+  @apply fixed rounded-full pointer-events-none z-[10000] transition-[width,height] duration-200 mix-blend-difference;
   width: 40px;
   height: 40px;
   border: 2px solid #fff;

@@ -1,22 +1,25 @@
-import type { FC } from 'react'
+import type {
+  FC,
+  AnchorHTMLAttributes,
+  ReactNode,
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+} from 'react'
 import { useRipple } from '../../../hooks/useRipple'
 import './PrimaryButton.css'
 
-const PrimaryButton: FC<
-  React.AnchorHTMLAttributes<HTMLAnchorElement> & { children: React.ReactNode }
-> = ({ children, className = '', ...rest }) => {
+type Props = AnchorHTMLAttributes<HTMLAnchorElement> & { children: ReactNode }
+
+const PrimaryButton: FC<Props> = ({ children, className = '', onClick, ...rest }) => {
   const ripple = useRipple()
   return (
     <a
       {...rest}
-      onClick={(e) => {
-        ripple(e)
-        rest.onClick?.(e)
-      }}
-      className={`relative inline-flex items-center gap-2 overflow-hidden 
-                  focus:outline-none ${className}`}
+      className={`btn ${className}`}
+      onPointerDown={(e: ReactPointerEvent<HTMLAnchorElement>) => ripple(e)}
+      onClick={(e: ReactMouseEvent<HTMLAnchorElement>) => onClick?.(e)}
     >
-      {children}
+      <span className="btn__content">{children}</span>
     </a>
   )
 }
