@@ -2,8 +2,9 @@ import React, { type FC, useMemo } from 'react'
 import Section from '../components/layout/Section'
 import { Briefcase, GraduationCap } from 'lucide-react'
 import { useExperience } from '../hooks/useExperience'
-import type { ExperienceItem, TagKind, WorkMode } from '../api/experience'
+import type { ExperienceItem, WorkMode } from '../api/experience'
 import { WORK_MODE_LABEL } from '../api/experience'
+import TagPill, { sortTagBadges } from '@/components/common/TagPill'
 
 type YearTheme = {
   bubble: string
@@ -50,25 +51,6 @@ const themeOfYear = (year: number): YearTheme => {
   return THEME_CYCLE[idx]
 }
 
-const TAG_STYLES: Record<TagKind, { light: string; dark: string }> = {
-  frontend: {
-    light: 'bg-sky-50 text-sky-700 ring-sky-200',
-    dark: 'bg-sky-400/50 text-white ring-sky-200',
-  },
-  backend: {
-    light: 'bg-indigo-50 text-indigo-700 ring-indigo-200',
-    dark: 'bg-indigo-400/50 text-white ring-indigo-200',
-  },
-  tools: {
-    light: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-    dark: 'bg-emerald-400/50 text-white ring-emerald-200',
-  },
-  other: {
-    light: 'bg-slate-50 text-slate-700 ring-slate-200',
-    dark: 'bg-slate-400/50 text-white ring-slate-200',
-  },
-}
-
 const isPresent = (end?: string | null) => !end || String(end).toLowerCase() === 'present'
 const startMs = (e: ExperienceItem) => new Date(e.startDate).getTime()
 const endMs = (e: ExperienceItem) =>
@@ -112,16 +94,6 @@ const BasePill: FC<{ className?: string; children: React.ReactNode; ariaLabel?: 
     {children}
   </span>
 )
-
-const TagPill: FC<{ label: string; type?: string; onDark?: boolean }> = ({
-  label,
-  type,
-  onDark,
-}) => {
-  const kind = (type?.toLowerCase() as TagKind) || 'other'
-  const theme = onDark ? TAG_STYLES[kind].dark : TAG_STYLES[kind].light
-  return <BasePill className={theme}>{label}</BasePill>
-}
 
 const DatePill: FC<{ currentCard?: boolean; children: React.ReactNode }> = ({
   currentCard,
@@ -249,23 +221,7 @@ const Card: FC<{ entry: ExperienceItem; side: 'left' | 'right' }> = ({ entry, si
     />
   ) : null
 
-  const sortOrder: Record<TagKind, number> = {
-    frontend: 1,
-    backend: 2,
-    tools: 3,
-    other: 4,
-  }
-
-  const badges = (entry.badges || [])
-    .filter((b) => !/^(work|education|current)$/i.test(b.label?.trim?.() ?? ''))
-    .sort((a, b) => {
-      const typeA = (a.type?.toLowerCase() as TagKind) || 'other'
-      const typeB = (b.type?.toLowerCase() as TagKind) || 'other'
-      if (sortOrder[typeA] !== sortOrder[typeB]) {
-        return sortOrder[typeA] - sortOrder[typeB]
-      }
-      return a.label.localeCompare(b.label)
-    })
+  const badges = sortTagBadges(entry.badges ?? [])
 
   return (
     <article
@@ -322,7 +278,7 @@ const Card: FC<{ entry: ExperienceItem; side: 'left' | 'right' }> = ({ entry, si
             <TagPill
               key={`${entry.role}-${b.label}-${i}`}
               label={b.label}
-              type={b.type as TagKind | undefined}
+              type={b.type}
               onDark={current}
             />
           ))}
@@ -351,7 +307,7 @@ const ExperienceSection: FC = () => {
 
   return (
     <Section
-      id="experience"
+      id="experiences"
       title={data?.title ?? 'Experiences'}
       description={data?.subtitle ?? undefined}
       background="light"

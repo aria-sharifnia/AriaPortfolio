@@ -45,3 +45,7 @@ body {
 
 :root {
 }
+
+html {
+  scrollbar-gutter: stable;
+}

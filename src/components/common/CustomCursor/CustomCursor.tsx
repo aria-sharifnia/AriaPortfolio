@@ -2,12 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import './CustomCursor.css'
 
+const isInteractive = (el: Element | null) =>
+  !!el &&
+  !!el.closest('a,button,[role="button"],input,textarea,select,summary,.btn,.cursor-pointer')
+
 const CustomCursor = () => {
   const dot = useRef<HTMLDivElement>(null)
   const ring = useRef<HTMLDivElement>(null)
   const target = useRef({ x: 0, y: 0 })
   const ringPos = useRef({ x: 0, y: 0 })
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
+  const raf = useRef<number | null>(null)
 
   useEffect(() => {
     const el = document.createElement('div')
@@ -24,6 +29,8 @@ const CustomCursor = () => {
   }, [])
 
   useEffect(() => {
+    if (!container) return
+
     const handleMove = (e: MouseEvent) => {
       const { clientX: x, clientY: y } = e
       target.current.x = x
@@ -33,34 +40,41 @@ const CustomCursor = () => {
         dot.current.style.top = `${y}px`
       }
     }
-    document.addEventListener('mousemove', handleMove, { passive: true })
 
-    let raf = 0
     const animate = () => {
-      ringPos.current.x += (target.current.x - ringPos.current.x) * 0.2
-      ringPos.current.y += (target.current.y - ringPos.current.y) * 0.2
+      ringPos.current.x += (target.current.x - ringPos.current.x) * 0.18
+      ringPos.current.y += (target.current.y - ringPos.current.y) * 0.18
       if (ring.current) {
         ring.current.style.left = `${ringPos.current.x}px`
         ring.current.style.top = `${ringPos.current.y}px`
       }
       const under = document.elementFromPoint(target.current.x, target.current.y)
-      const interactive =
-        !!under &&
-        !!(under as Element).closest(
-          'a,button,nav,[role="button"],[data-interactive],.cursor-pointer'
-        )
-      dot.current?.classList.toggle('cursor-hover', interactive)
-      ring.current?.classList.toggle('ring-hover', interactive)
-
-      raf = requestAnimationFrame(animate)
+      const active = isInteractive(under as Element | null)
+      dot.current?.classList.toggle('cursor-hover', active)
+      ring.current?.classList.toggle('ring-hover', active)
+      raf.current = requestAnimationFrame(animate)
     }
-    raf = requestAnimationFrame(animate)
+
+    const clearHover = () => {
+      dot.current?.classList.remove('cursor-hover')
+      ring.current?.classList.remove('ring-hover')
+    }
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') clearHover()
+    }
+
+    document.addEventListener('mousemove', handleMove, { passive: true })
+    window.addEventListener('blur', clearHover)
+    document.addEventListener('visibilitychange', onVis)
+    raf.current = requestAnimationFrame(animate)
 
     return () => {
       document.removeEventListener('mousemove', handleMove)
-      cancelAnimationFrame(raf)
+      window.removeEventListener('blur', clearHover)
+      document.removeEventListener('visibilitychange', onVis)
+      if (raf.current) cancelAnimationFrame(raf.current)
     }
-  }, [])
+  }, [container])
 
   if (!container) return null
 

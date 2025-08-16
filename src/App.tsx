@@ -3,6 +3,7 @@ import Header from './components/layout/Header'
 import AboutSection from './sections/AboutSection'
 import ExperiencesSection from './sections/ExpriencesSection'
 import HomeSection from './sections/HomeSection'
+import ProjectsSection from './sections/ProjectsSection'
 import SkillsSection from './sections/SkillsSection'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <AboutSection />
         <SkillsSection />
         <ExperiencesSection />
+        <ProjectsSection />
       </main>
       <CustomCursor />
     </div>

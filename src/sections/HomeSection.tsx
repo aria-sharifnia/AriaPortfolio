@@ -5,8 +5,7 @@ import { useHome } from '../hooks/useHome'
 import { mediaUrl } from '../api/strapi'
 import { downloadFile } from '../utils/download'
 
-const baseButton =
-  'rounded-full px-10 py-4 text-base font-semibold text-white shadow-md transition-transform duration-300 hover:scale-110'
+const baseButton = 'rounded-full px-10 py-4 text-base font-semibold text-white shadow-md'
 const primaryButton = `${baseButton} bg-teal-400`
 const secondaryButton = `${baseButton} border border-white bg-white/10 backdrop-blur-sm`
 
