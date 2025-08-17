@@ -7,9 +7,10 @@ import InlineSvg from '../components/common/inlineSVG'
 const AboutSection: FC = () => {
   const { data } = useAbout()
   const imgSrc = mediaUrl(data?.profileImage?.url)
+  const links = (data?.socials ?? []).filter((s) => s.showInAbout === true)
 
   return (
-    <Section id="about" title={data?.heading} background="light">
+    <Section id="about" title={data?.heading} background="gray">
       <div className="grid grid-cols-1 gap-10 md:grid-cols-5 md:items-center">
         <div className="md:col-span-2">
           <img src={imgSrc} alt="Profile" className="w-full rounded-xl shadow-xl object-cover" />
@@ -40,21 +41,32 @@ const AboutSection: FC = () => {
             </div>
           ) : null}
 
-          {data?.socialMedias?.length ? (
+          {links.length ? (
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              {data.socialMedias.map((s, i) => (
-                <a
-                  key={i}
-                  href={s.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={s.label}
-                  aria-label={s.label}
-                  className="inline-flex size-14 items-center justify-center transition-transform duration-400 ease-out hover:scale-125 focus:scale-125 focus:outline-none cursor-pointer"
-                >
-                  <InlineSvg src={mediaUrl(s.iconSVG?.url ?? undefined)} className="size-9" />
-                </a>
-              ))}
+              {links.map((s, i) => {
+                const href =
+                  s.url?.includes('@') && !s.url.startsWith('http')
+                    ? `mailto:${s.url}`
+                    : (s.url ?? '#')
+                const external = href && !href.startsWith('mailto:')
+
+                return (
+                  <a
+                    key={i}
+                    href={href}
+                    target={external ? '_blank' : undefined}
+                    rel={external ? 'noopener noreferrer' : undefined}
+                    title={s.label ?? undefined}
+                    aria-label={s.label ?? undefined}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={(e) => e.currentTarget.blur()}
+                    className="inline-flex size-14 items-center justify-center transition-transform duration-300 ease-out
+                 hover:scale-125 focus-visible:scale-125 focus:outline-none cursor-pointer"
+                  >
+                    <InlineSvg src={mediaUrl(s.iconSVG?.url ?? undefined)} className="size-9" />
+                  </a>
+                )
+              })}
             </div>
           ) : null}
         </div>

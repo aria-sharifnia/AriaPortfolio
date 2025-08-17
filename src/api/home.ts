@@ -8,12 +8,11 @@ export type HomeContent = {
   nameLogo: string
   viewMyWorkLabel: string
   downloadResumeLabel: string
-  resume?: { url?: string } | null
 }
 
 type HomeResponse = { data: HomeContent }
 
 export async function fetchHome(): Promise<HomeContent> {
-  const json = await get<HomeResponse>('/api/home?populate=resume')
+  const json = await get<HomeResponse>('/api/home')
   return json.data
 }
