@@ -6,6 +6,12 @@ export type SocialMedia = {
   iconSVG?: Media | null
   label: string
   url: string
+  description?: string | null
+  buttonText?: string | null
+  themes?: 'rose' | 'sky' | 'slate' | 'emerald' | 'violet' | 'amber' | 'teal' | null
+  showInContact?: boolean | null
+  file?: Media | null
+  showInAbout?: boolean | null
 }
 
 export type BulletPoint = {
@@ -19,7 +25,7 @@ export type AboutContent = {
   introParagraph1?: string
   introParagraph2?: string | null
   profileImage?: Media | null
-  socialMedias: SocialMedia[]
+  socials: SocialMedia[]
   bulletPoints: BulletPoint[]
 }
 
@@ -29,7 +35,8 @@ export async function fetchAbout(): Promise<AboutContent> {
   const url =
     '/api/about?' +
     'populate[profileImage]=true&' +
-    'populate[socialMedias][populate][iconSVG]=true&' +
+    'populate[socials][populate][iconSVG]=true&' +
+    'populate[socials][populate][file]=true&' +
     'populate[bulletPoints][populate][iconSVG]=true'
 
   const json = await get<AboutResponse>(url)

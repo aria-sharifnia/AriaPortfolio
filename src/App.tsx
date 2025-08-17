@@ -6,6 +6,7 @@ import HomeSection from './sections/HomeSection'
 import ProjectsSection from './sections/ProjectsSection'
 import SkillsSection from './sections/SkillsSection'
 import TestimonialsSection from './sections/TestimonialsSection'
+import ContactSection from './sections/ContactSection'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <ExperiencesSection />
         <ProjectsSection />
         <TestimonialsSection />
+        <ContactSection />
       </main>
       <CustomCursor />
     </div>
