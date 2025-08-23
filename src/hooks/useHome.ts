@@ -1,12 +1,7 @@
-import { useQuery, queryOptions } from '@tanstack/react-query'
-import { fetchHome, type HomeContent } from '../api/home'
-
-export const homeQuery = queryOptions<HomeContent>({
-  queryKey: ['home'],
-  queryFn: fetchHome,
-})
+import { useQuery } from '@tanstack/react-query'
+import { fetchHome } from '../api/home'
 
 export function useHome() {
-  const { data, error, isLoading } = useQuery(homeQuery)
-  return { data, error: error ? (error as Error).message : null, loading: isLoading }
+  const { data } = useQuery({ queryKey: ['home'], queryFn: fetchHome })
+  return { data }
 }
