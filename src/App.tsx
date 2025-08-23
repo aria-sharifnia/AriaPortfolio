@@ -7,23 +7,25 @@ import ProjectsSection from './sections/ProjectsSection'
 import SkillsSection from './sections/SkillsSection'
 import TestimonialsSection from './sections/TestimonialsSection'
 import ContactSection from './sections/ContactSection'
+import BootStrapiGuard from './components/system/BootStrapiGuard'
 
 function App() {
   return (
     <div id="site-root" className="isolate">
-      <Header />
-      <main className="relative z-0 pt-[var(--header-h)]">
-        <HomeSection />
-        <AboutSection />
-        <SkillsSection />
-        <ExperiencesSection />
-        <ProjectsSection />
-        <TestimonialsSection />
-        <ContactSection />
-      </main>
       <CustomCursor />
+      <BootStrapiGuard>
+        <Header />
+        <main className="relative z-0 pt-[var(--header-h)]">
+          <HomeSection />
+          <AboutSection />
+          <SkillsSection />
+          <ExperiencesSection />
+          <ProjectsSection />
+          <TestimonialsSection />
+          <ContactSection />
+        </main>
+      </BootStrapiGuard>
     </div>
   )
 }
-
 export default App

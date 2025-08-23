@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { get } from '../api/strapi'
-import { mediaUrl } from '../api/strapi'
+import { get, mediaUrl } from '../api/strapi'
 
-type StrapiImage = {
-  data?: { attributes?: { url?: string } } | null
-}
-
+type StrapiImage = { data?: { attributes?: { url?: string } } | null }
 type SocialLinkRaw = {
   id: number
   attributes: {
@@ -14,13 +10,10 @@ type SocialLinkRaw = {
     color?: string | null
     show?: boolean
     order?: number | null
-    icon?: StrapiImage | null
+    icon?: StrapiImage
   }
 }
-
-type SocialsResponse = {
-  data: SocialLinkRaw[]
-}
+type SocialsResponse = { data: SocialLinkRaw[] }
 
 export type SocialLink = {
   id: number
@@ -31,13 +24,13 @@ export type SocialLink = {
 }
 
 export function useSocials() {
-  return useQuery({
+  const { data } = useQuery({
     queryKey: ['socials'],
     queryFn: async (): Promise<SocialLink[]> => {
       const res = await get<SocialsResponse>(
         '/api/social-links?sort=order:asc&filters[show][$eq]=true&populate=icon'
       )
-      return (res.data || []).map((item) => {
+      return (res.data ?? []).map((item) => {
         const att = item.attributes
         const rawUrl = att.icon?.data?.attributes?.url
         return {
@@ -51,4 +44,5 @@ export function useSocials() {
     },
     staleTime: 5 * 60 * 1000,
   })
+  return { data }
 }

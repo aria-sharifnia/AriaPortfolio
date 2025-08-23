@@ -21,28 +21,28 @@ const THEME_CYCLE: YearTheme[] = [
     dotRing: 'ring-amber-400',
     cardRing: 'ring-amber-200',
     stripe: 'bg-amber-400',
-  }, // 2022
+  },
   {
     bubble: 'from-amber-500 to-yellow-400',
     bar: 'bg-amber-400',
     dotRing: 'ring-indigo-500',
     cardRing: 'ring-indigo-200',
     stripe: 'bg-indigo-500',
-  }, // 2023
+  },
   {
     bubble: 'from-sky-600 to-cyan-500',
     bar: 'bg-sky-500',
     dotRing: 'ring-rose-500',
     cardRing: 'ring-rose-200',
     stripe: 'bg-rose-500',
-  }, // 2024
+  },
   {
     bubble: 'from-emerald-600 to-teal-500',
     bar: 'bg-emerald-500',
     dotRing: 'ring-fuchsia-500',
     cardRing: 'ring-fuchsia-200',
     stripe: 'bg-fuchsia-500',
-  }, // 2025
+  },
 ]
 const THEME_ANCHOR_YEAR = 2022
 const themeOfYear = (year: number): YearTheme => {
@@ -306,12 +306,7 @@ const ExperienceSection: FC = () => {
   const byYear = useMemo(() => groupByStartYear(sorted), [sorted])
 
   return (
-    <Section
-      id="experiences"
-      title={data?.title ?? 'Experiences'}
-      description={data?.subtitle ?? undefined}
-      background="light"
-    >
+    <Section id="experiences" title={data?.title} description={data?.subtitle} background="light">
       <div className="relative mx-auto max-w-6xl pt-24 md:pt-14 pb-12 md:pb-16">
         <div className="flex flex-col gap-y-6 md:gap-y-8">
           {(() => {

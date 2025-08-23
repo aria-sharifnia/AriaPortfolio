@@ -5,6 +5,7 @@ import InlineSvg from '@/components/common/inlineSVG'
 import { useAbout } from '@/hooks/useAbout'
 import { mediaUrl } from '@/api/strapi'
 import { downloadFile } from '@/utils/download'
+import { useContact } from '@/hooks/useContact'
 
 const THEME = {
   rose: {
@@ -61,15 +62,16 @@ type ThemeKey = keyof typeof THEME
 const themeOf = (k?: string) => THEME[(k as ThemeKey) || 'teal']
 
 const ContactSection: FC = () => {
-  const { data } = useAbout()
-  const links = (data?.socials ?? []).filter((l) => l.showInContact !== false)
+  const { data: about } = useAbout()
+  const { data: contact } = useContact()
+  const links = (about?.socials ?? []).filter((l) => l.showInContact !== false)
 
   return (
     <Section
       id="contact"
-      title="Let’s Connect"
+      title={contact?.heading}
       background="gray"
-      description="Open to internships/co-ops & part-time • Calgary, AB • Remote-friendly"
+      description={contact?.description}
     >
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {links.map((l, i) => {
