@@ -10,10 +10,21 @@ const AboutSection: FC = () => {
   const links = (data?.socials ?? []).filter((s) => s.showInAbout === true)
 
   return (
-    <Section id="about" title={data?.heading} background="gray">
+    <Section id="about" title={data?.heading} background="light">
       <div className="grid grid-cols-1 gap-10 md:grid-cols-5 md:items-center">
         <div className="md:col-span-2">
-          <img src={imgSrc} alt="Profile" className="w-full rounded-xl shadow-xl object-cover" />
+          <div className="relative" style={{ aspectRatio: '1 / 1' }}>
+            <img
+              src={imgSrc}
+              alt="Aria Sharifnia portrait"
+              width={560}
+              height={560}
+              className="absolute inset-0 h-full w-full rounded-xl shadow-xl object-cover"
+              loading="lazy"
+              decoding="async"
+              sizes="(max-width: 768px) 100vw, 560px"
+            />
+          </div>
         </div>
 
         <div className="md:col-span-3">

@@ -6,6 +6,7 @@ import globals from 'globals'
 import pluginPrettier from 'eslint-plugin-prettier'
 
 export default [
+  { ignores: ['dist/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   react,

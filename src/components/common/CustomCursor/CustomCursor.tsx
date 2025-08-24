@@ -6,7 +6,40 @@ const isInteractive = (el: Element | null) =>
   !!el &&
   !!el.closest('a,button,[role="button"],input,textarea,select,summary,.btn,.cursor-pointer')
 
+function useCursorEnabled() {
+  const [enabled, setEnabled] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const mqFine = window.matchMedia('(pointer: fine)')
+    const mqHover = window.matchMedia('(hover: hover)')
+    const mqWide = window.matchMedia('(min-width: 1024px)')
+
+    const update = () => {
+      setEnabled(mqFine.matches && mqHover.matches && mqWide.matches)
+    }
+    update()
+
+    const onChange = () => update()
+    mqFine.addEventListener('change', onChange)
+    mqHover.addEventListener('change', onChange)
+    mqWide.addEventListener('change', onChange)
+    window.addEventListener('resize', update)
+
+    return () => {
+      mqFine.removeEventListener('change', onChange)
+      mqHover.removeEventListener('change', onChange)
+      mqWide.removeEventListener('change', onChange)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
+  return enabled
+}
+
 const CustomCursor = () => {
+  const enabled = useCursorEnabled()
   const dot = useRef<HTMLDivElement>(null)
   const ring = useRef<HTMLDivElement>(null)
   const target = useRef({ x: 0, y: 0 })
@@ -15,6 +48,13 @@ const CustomCursor = () => {
   const raf = useRef<number | null>(null)
 
   useEffect(() => {
+    if (!enabled) {
+      if (container) {
+        container.remove()
+        setContainer(null)
+      }
+      return
+    }
     const el = document.createElement('div')
     el.id = 'cursor-layer'
     Object.assign(el.style, {
@@ -26,7 +66,7 @@ const CustomCursor = () => {
     document.body.appendChild(el)
     setContainer(el)
     return () => el.remove()
-  }, [])
+  }, [enabled])
 
   useEffect(() => {
     if (!container) return
@@ -76,7 +116,7 @@ const CustomCursor = () => {
     }
   }, [container])
 
-  if (!container) return null
+  if (!enabled || !container) return null
 
   return createPortal(
     <>

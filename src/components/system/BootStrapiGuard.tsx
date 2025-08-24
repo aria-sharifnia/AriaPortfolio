@@ -5,8 +5,8 @@ import { STRAPI_BASE } from '@/api/strapi'
 const CHECKS = ['/health']
 const REACHABLE = (s: number) => s >= 200 && s <= 599
 
-const GRACE_MS = 300
 const TIMEOUT_MS = 450
+const MIN_INTERVAL_MS = 30000
 
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -25,35 +25,23 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 }
 
 async function quickProbe(url: string): Promise<boolean> {
-  let okHead = false
-
-  try {
-    okHead = await withTimeout(
-      fetch(url, { method: 'HEAD', mode: 'cors', credentials: 'omit', cache: 'no-store' }).then(
-        (r) => {
-          if (r.status === 405 || r.status === 501) return false
-          return REACHABLE(r.status)
-        }
-      ),
-      TIMEOUT_MS
-    )
-  } catch {
-    okHead = false
-  }
+  const okHead = await withTimeout(
+    fetch(url, { method: 'HEAD', mode: 'cors', credentials: 'omit', cache: 'no-store' }).then(
+      (r) => (r.status === 405 || r.status === 501 ? false : REACHABLE(r.status))
+    ),
+    TIMEOUT_MS
+  ).catch(() => false)
 
   if (okHead) return true
 
-  try {
-    const okGet = await withTimeout(
-      fetch(url, { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' }).then(
-        (r) => REACHABLE(r.status)
-      ),
-      TIMEOUT_MS
-    )
-    return okGet
-  } catch {
-    return false
-  }
+  const okGet = await withTimeout(
+    fetch(url, { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' }).then((r) =>
+      REACHABLE(r.status)
+    ),
+    TIMEOUT_MS
+  ).catch(() => false)
+
+  return okGet
 }
 
 async function pingStrapi(): Promise<boolean> {
@@ -67,54 +55,62 @@ async function pingStrapi(): Promise<boolean> {
 }
 
 export default function BootStrapiGuard({ children }: { children: React.ReactNode }) {
-  const [status, setStatus] = useState<'unknown' | 'up' | 'down'>('unknown')
-  const [showOverlay, setShowOverlay] = useState(false)
-  const graceTimer = useRef<number | null>(null)
-
-  const run = async () => {
-    setStatus('unknown')
-    if (graceTimer.current) window.clearTimeout(graceTimer.current)
-    graceTimer.current = window.setTimeout(() => {
-      setShowOverlay(true)
-      document.body.dataset.overlay = '1'
-    }, GRACE_MS)
-
-    const ok = await pingStrapi()
-
-    if (graceTimer.current) {
-      window.clearTimeout(graceTimer.current)
-      graceTimer.current = null
+  const [isDown, setIsDown] = useState(false)
+  const lastCheckRef = useRef(0)
+  const inFlightRef = useRef(false)
+  const run = async (force = false): Promise<boolean> => {
+    if (inFlightRef.current) return !isDown
+    const now = Date.now()
+    if (!force && !isDown && now - lastCheckRef.current < MIN_INTERVAL_MS) return !isDown
+    if (document.hidden) return !isDown
+    if (!navigator.onLine) {
+      setIsDown(true)
+      return false
     }
-    setStatus(ok ? 'up' : 'down')
-    setShowOverlay(!ok)
-    if (ok) delete document.body.dataset.overlay
-    else document.body.dataset.overlay = '1'
+
+    inFlightRef.current = true
+    try {
+      const ok = await pingStrapi()
+      lastCheckRef.current = Date.now()
+      setIsDown(!ok)
+      return ok
+    } finally {
+      inFlightRef.current = false
+    }
   }
 
   useEffect(() => {
-    run()
-    const onFocusOrOnline = () => run()
-    window.addEventListener('online', onFocusOrOnline)
-    window.addEventListener('focus', onFocusOrOnline)
+    run(true)
+
+    const onOnline = () => run(true)
+    const onVis = () => {
+      if (document.visibilityState === 'visible') setTimeout(() => void run(false), 120)
+    }
+
+    window.addEventListener('online', onOnline)
+    document.addEventListener('visibilitychange', onVis)
     return () => {
-      window.removeEventListener('online', onFocusOrOnline)
-      window.removeEventListener('focus', onFocusOrOnline)
-      if (graceTimer.current) window.clearTimeout(graceTimer.current)
+      window.removeEventListener('online', onOnline)
+      document.removeEventListener('visibilitychange', onVis)
     }
   }, [])
 
-  if (status === 'unknown' && !showOverlay) return null
-
-  if (status === 'down' || showOverlay) {
-    return (
+  return (
+    <>
+      {children}
       <GlobalErrorOverlay
-        show
+        show={isDown}
         title="Oops!"
         message="Couldn't fetch data right now. The server may be down."
         buttonText="Try again"
-        onRetry={run}
+        onRetry={() => {
+          run(true).then((ok) => {
+            if (ok) {
+              window.location.reload()
+            }
+          })
+        }}
       />
-    )
-  }
-  return <>{children}</>
+    </>
+  )
 }

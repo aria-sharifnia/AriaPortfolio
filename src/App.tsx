@@ -11,11 +11,11 @@ import BootStrapiGuard from './components/system/BootStrapiGuard'
 
 function App() {
   return (
-    <div id="site-root" className="isolate">
+    <div id="site-root">
       <CustomCursor />
       <BootStrapiGuard>
         <Header />
-        <main className="relative z-0 pt-[var(--header-h)]">
+        <main>
           <HomeSection />
           <AboutSection />
           <SkillsSection />

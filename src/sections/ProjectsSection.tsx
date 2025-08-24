@@ -269,7 +269,7 @@ const OVERLAY_HOVER_MS = 500
 const BTN_BASE =
   'btn inline-flex items-center rounded-full px-3.5 py-2 text-sm font-semibold leading-none ring-1 shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer select-none'
 const BTN_LG = 'h-11 px-4 text-base tracking-tight gap-2'
-const DEMO_BTN = `${BTN_BASE} ${BTN_LG} bg-emerald-600 text-white ring-emerald-700/50`
+const DEMO_BTN = `${BTN_BASE} ${BTN_LG} bg-emerald-600 text-slate-900 ring-emerald-700/50`
 const GITHUB_BTN = `${BTN_BASE} ${BTN_LG} bg-slate-900 text-white ring-black/10`
 
 const ProjectCard: React.FC<{
@@ -330,7 +330,6 @@ const ProjectCard: React.FC<{
   return (
     <article
       ref={setRef}
-      role="button"
       tabIndex={0}
       onClick={handleCardActivate}
       onKeyDown={onKeyDown}
@@ -620,7 +619,7 @@ const ProjectModal: React.FC<ModalProps> = ({
                       href={project.demoUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="btn h-11 px-4 text-base tracking-tight gap-2 bg-emerald-600 text-white ring-1 ring-emerald-700/50"
+                      className="btn h-11 px-4 text-base tracking-tight gap-2 bg-emerald-600 text-slate-900 ring-1 ring-emerald-700/50"
                     >
                       <span className="btn__content">
                         <ExternalLink className="h-4 w-4 shrink-0 align-middle" />

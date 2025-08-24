@@ -56,7 +56,6 @@ const TestimonialCard: FC<{ t: TestimonialItem }> = ({ t }) => {
   return (
     <article
       className="relative flex h-full flex-col justify-between rounded-2xl bg-white p-6 shadow-[0_16px_40px_rgba(2,24,43,.08)] ring-1 ring-gray-200"
-      role="figure"
       aria-label={`Testimonial from ${t.reviewer} at ${t.company}`}
     >
       <Quote aria-hidden className="absolute -top-3 left-6 h-7 w-7 text-teal-400 opacity-90" />

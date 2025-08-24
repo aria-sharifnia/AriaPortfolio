@@ -307,7 +307,7 @@ const ExperienceSection: FC = () => {
 
   return (
     <Section id="experiences" title={data?.title} description={data?.subtitle} background="light">
-      <div className="relative mx-auto max-w-6xl pt-24 md:pt-14 pb-12 md:pb-16">
+      <div className="relative mx-auto max-w-6xl">
         <div className="flex flex-col gap-y-6 md:gap-y-8">
           {(() => {
             let globalIndex = 0
