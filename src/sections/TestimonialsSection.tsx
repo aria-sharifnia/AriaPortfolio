@@ -1,9 +1,10 @@
 import type { FC } from 'react'
 import Section from '../components/layout/Section'
-import { Quote, ExternalLink, Linkedin } from 'lucide-react'
-import TagPill, { sortTagBadges } from '@/components/common/TagPill'
+import { Quote, ExternalLink } from 'lucide-react'
+import TagPill from '@/components/common/TagPill'
 import { useTestimonials } from '@/hooks/useTestimonials'
 import type { TestimonialItem } from '@/api/testimonials'
+import { sortTagBadges } from '@/utils/tags'
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
@@ -45,9 +46,7 @@ const TestimonialCard: FC<{ t: TestimonialItem }> = ({ t }) => {
         >
           {t.socialIconUrl ? (
             <img src={t.socialIconUrl} alt="" className="h-6 w-6 md:h-7 md:w-7" />
-          ) : (
-            <Linkedin className="h-6 w-6 md:h-7 md:w-7" />
-          )}
+          ) : null}
         </a>
       ) : null}
     </>
@@ -56,7 +55,6 @@ const TestimonialCard: FC<{ t: TestimonialItem }> = ({ t }) => {
   return (
     <article
       className="relative flex h-full flex-col justify-between rounded-2xl bg-white p-6 shadow-[0_16px_40px_rgba(2,24,43,.08)] ring-1 ring-gray-200"
-      role="figure"
       aria-label={`Testimonial from ${t.reviewer} at ${t.company}`}
     >
       <Quote aria-hidden className="absolute -top-3 left-6 h-7 w-7 text-teal-400 opacity-90" />

@@ -4,7 +4,8 @@ import { Briefcase, GraduationCap } from 'lucide-react'
 import { useExperience } from '../hooks/useExperience'
 import type { ExperienceItem, WorkMode } from '../api/experience'
 import { WORK_MODE_LABEL } from '../api/experience'
-import TagPill, { sortTagBadges } from '@/components/common/TagPill'
+import TagPill from '@/components/common/TagPill'
+import { sortTagBadges } from '@/utils/tags'
 
 type YearTheme = {
   bubble: string
@@ -83,7 +84,7 @@ const groupByStartYear = (entries: ExperienceItem[]): Record<string, ExperienceI
 }
 
 const PILL_BASE =
-  'inline-flex items-center h-6 px-3 rounded-full text-[13px] font-semibold ring-1 shadow-sm'
+  'inline-flex items-center h-6 px-3 rounded-full text-[13px] font-semibold leading-none ring-1 shadow-sm whitespace-nowrap shrink-0'
 
 const BasePill: FC<{ className?: string; children: React.ReactNode; ariaLabel?: string }> = ({
   className = '',
@@ -177,6 +178,7 @@ const Dot: FC<{ year: number; current?: boolean }> = ({ year, current }) => {
     />
   )
 }
+
 const YearPillInline: FC<{ year: number; label?: React.ReactNode; bubble?: string }> = ({
   year,
   label,
@@ -187,11 +189,7 @@ const YearPillInline: FC<{ year: number; label?: React.ReactNode; bubble?: strin
   return (
     <div
       className={[
-        'relative z-10',
-        'inline-flex items-center justify-center',
-        'h-8 px-3 rounded-full text-white text-lg font-bold leading-none',
-        'shadow ring-1 ring-black/10',
-        'bg-gradient-to-r',
+        'relative z-10 inline-flex items-center justify-center h-8 px-3 rounded-full text-white text-lg font-bold leading-none shadow ring-1 ring-black/10 bg-gradient-to-r',
         bubbleCls,
       ].join(' ')}
     >
@@ -212,7 +210,7 @@ const Card: FC<{ entry: ExperienceItem; side: 'left' | 'right' }> = ({ entry, si
   const accent = !current ? (
     <span
       className={[
-        'absolute',
+        'hidden md:block absolute',
         side === 'left' ? 'right-0' : 'left-0',
         'top-3 bottom-3 md:top-4 md:bottom-4',
         'w-1.5 rounded-full',
@@ -228,15 +226,16 @@ const Card: FC<{ entry: ExperienceItem; side: 'left' | 'right' }> = ({ entry, si
       className={[
         'relative rounded-3xl p-5 md:p-6 backdrop-blur-sm',
         shell,
-        side === 'left' ? 'ml-auto' : 'mr-auto',
+        'mx-auto',
+        side === 'left' ? 'md:ml-auto md:mr-0' : 'md:mr-auto md:ml-0',
         'max-w-[520px] w-full',
       ].join(' ')}
     >
       {accent}
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <DatePill currentCard={current}>{fmtRange(entry.startDate, entry.endDate)}</DatePill>
-        <div className="flex items-center gap-2">
+        <div className="w-full lg:w-auto flex flex-wrap items-center gap-2 lg:ml-auto">
           <StatusPill
             mode={entry.kind === 'work' ? entry.mode : null}
             gpa={entry.kind === 'education' ? entry.gpa : null}
@@ -307,91 +306,103 @@ const ExperienceSection: FC = () => {
 
   return (
     <Section id="experiences" title={data?.title} description={data?.subtitle} background="light">
-      <div className="relative mx-auto max-w-6xl pt-24 md:pt-14 pb-12 md:pb-16">
-        <div className="flex flex-col gap-y-6 md:gap-y-8">
-          {(() => {
-            let globalIndex = 0
-            return years.map((y, yearIndex) => {
-              const entries = byYear[String(y)] || []
-              const th = themeOfYear(y)
-              const isLastYear = yearIndex === years.length - 1
-              const isFirstYear = yearIndex === 0
+      <div className="relative mx-auto max-w-6xl">
+        <div className="md:hidden flex flex-col gap-y-6">
+          {sorted.map((entry) => (
+            <Card
+              key={`${entry.role}-${entry.startDate}-${entry.endDate ?? 'present'}`}
+              entry={entry}
+              side="left"
+            />
+          ))}
+        </div>
 
-              return (
-                <div key={y} className={isLastYear ? 'relative' : 'relative pb-2 md:pb-3'}>
-                  {isFirstYear && (
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20">
-                      <YearPillInline
-                        year={y}
-                        label="Present"
-                        bubble="from-emerald-600 to-teal-500"
-                      />
+        <div className="hidden md:block">
+          <div className="flex flex-col gap-y-8">
+            {(() => {
+              let globalIndex = 0
+              return years.map((y, yearIndex) => {
+                const entries = byYear[String(y)] || []
+                const th = themeOfYear(y)
+                const isLastYear = yearIndex === years.length - 1
+                const isFirstYear = yearIndex === 0
+
+                return (
+                  <div key={y} className={isLastYear ? 'relative' : 'relative pb-3'}>
+                    {isFirstYear && (
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20">
+                        <YearPillInline
+                          year={y}
+                          label="Present"
+                          bubble="from-emerald-600 to-teal-500"
+                        />
+                      </div>
+                    )}
+
+                    <div
+                      className={[
+                        'grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] md:gap-x-12 gap-y-8 pb-4',
+                        isFirstYear ? 'pt-12' : '',
+                      ].join(' ')}
+                    >
+                      {entries.map((entry) => {
+                        const side: 'left' | 'right' = globalIndex % 2 === 0 ? 'left' : 'right'
+                        const current = isPresent(entry.endDate)
+                        globalIndex++
+
+                        return (
+                          <React.Fragment
+                            key={`${entry.role}-${entry.startDate}-${entry.endDate ?? 'present'}`}
+                          >
+                            <div className="md:col-start-1">
+                              {side === 'left' ? (
+                                <Card entry={entry} side="left" />
+                              ) : (
+                                <div className="hidden md:block" />
+                              )}
+                            </div>
+
+                            <div className="relative flex items-center justify-center md:col-start-2 z-20">
+                              <Dot year={startYear(entry)} current={current} />
+                              <div
+                                className={[
+                                  'hidden md:block absolute top-1/2 -translate-y-1/2 h-[2px] pointer-events-none',
+                                  side === 'left'
+                                    ? 'right-[calc(50%+11px)] w-11 -mr-px'
+                                    : 'left-[calc(50%+11px)] w-11 -ml-px',
+                                  current ? 'bg-emerald-500' : th.stripe,
+                                ].join(' ')}
+                              />
+                            </div>
+
+                            <div className="md:col-start-3">
+                              {side === 'right' ? (
+                                <Card entry={entry} side="right" />
+                              ) : (
+                                <div className="hidden md:block" />
+                              )}
+                            </div>
+                          </React.Fragment>
+                        )
+                      })}
                     </div>
-                  )}
 
-                  <div
-                    className={[
-                      'grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] md:gap-x-12 gap-y-6 md:gap-y-8 pb-4',
-                      isFirstYear ? 'pt-8 md:pt-12' : '',
-                    ].join(' ')}
-                  >
-                    {entries.map((entry) => {
-                      const side: 'left' | 'right' = globalIndex % 2 === 0 ? 'left' : 'right'
-                      const current = isPresent(entry.endDate)
-                      globalIndex++
-
-                      return (
-                        <React.Fragment
-                          key={`${entry.role}-${entry.startDate}-${entry.endDate ?? 'present'}`}
-                        >
-                          <div className="md:col-start-1">
-                            {side === 'left' ? (
-                              <Card entry={entry} side="left" />
-                            ) : (
-                              <div className="hidden md:block" />
-                            )}
-                          </div>
-
-                          <div className="relative flex items-center justify-center md:col-start-2 z-20">
-                            <Dot year={startYear(entry)} current={current} />
-                            <div
-                              className={[
-                                'hidden md:block absolute top-1/2 -translate-y-1/2 h-[2px] pointer-events-none',
-                                side === 'left'
-                                  ? 'right-[calc(50%+11px)] w-11 -mr-px'
-                                  : 'left-[calc(50%+11px)] w-11 -ml-px',
-                                current ? 'bg-emerald-500' : th.stripe,
-                              ].join(' ')}
-                            />
-                          </div>
-
-                          <div className="md:col-start-3">
-                            {side === 'right' ? (
-                              <Card entry={entry} side="right" />
-                            ) : (
-                              <div className="hidden md:block" />
-                            )}
-                          </div>
-                        </React.Fragment>
-                      )
-                    })}
+                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10">
+                      <YearPillInline year={y} />
+                    </div>
+                    <div
+                      className={[
+                        'absolute left-1/2 -translate-x-1/2 w-[2px] rounded-full z-0',
+                        th.bar,
+                        '-top-4',
+                        '-bottom-4',
+                      ].join(' ')}
+                    />
                   </div>
-
-                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10">
-                    <YearPillInline year={y} />
-                  </div>
-                  <div
-                    className={[
-                      'absolute left-1/2 -translate-x-1/2 w-[2px] rounded-full z-0',
-                      th.bar,
-                      '-top-4',
-                      '-bottom-4',
-                    ].join(' ')}
-                  />
-                </div>
-              )
-            })
-          })()}
+                )
+              })
+            })()}
+          </div>
         </div>
       </div>
     </Section>

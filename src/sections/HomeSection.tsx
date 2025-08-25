@@ -36,20 +36,28 @@ const HomeSection: FC = () => {
       className="relative isolate w-full min-h-screen overflow-hidden text-gray-100
                  bg-gradient-to-br from-[#164a7b] via-[#123f6b] to-[#0b2945]"
     >
-      <div className="relative mx-auto flex flex-col items-center justify-center min-h-screen w-full px-4 sm:w-5/6 lg:w-3/4 xl:w-2/3">
-        <span className="mb-6 flex items-center justify-center w-22 h-22 rounded-full border border-white bg-white/10 backdrop-blur-sm">
-          <Code2 className="w-10 h-10 text-white" strokeWidth={2} aria-hidden="true" />
+      <div
+        className="relative mx-auto flex flex-col items-center justify-center
+                   w-full px-4 sm:w-5/6 lg:w-3/4 xl:w-2/3
+                   min-h-[calc(100svh-var(--header-h))] pb-16 sm:pb-20"
+        style={{
+          paddingTop: 'calc(var(--header-h) + 10px + env(safe-area-inset-top, 0px))',
+          paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 64px)',
+        }}
+      >
+        <span className="mb-6 mt-2 flex h-20 w-20 items-center justify-center rounded-full border border-white bg-white/10 backdrop-blur-sm">
+          <Code2 className="h-10 w-10 text-white" strokeWidth={2} aria-hidden="true" />
         </span>
 
-        <h1 className="text-6xl sm:text-8xl font-bold tracking-tight leading-tight text-center">
+        <h1 className="text-center text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
           {home?.greeting} <span className="text-teal-400">{home?.highlightedName}</span>
         </h1>
 
-        <p className="mt-6 text-2xl sm:text-3xl font-semibold text-gray-200 text-center">
+        <p className="mt-6 text-center text-2xl font-semibold text-gray-200 sm:text-3xl">
           {home?.jobTitle}
         </p>
 
-        <p className="mt-8 max-w-4xl text-lg sm:text-xl text-gray-300 text-center">
+        <p className="mt-8 max-w-4xl text-center text-lg text-gray-300 sm:text-xl">
           {home?.tagLine}
         </p>
 
@@ -72,10 +80,10 @@ const HomeSection: FC = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-6 flex justify-center w-full">
+      <div className="absolute bottom-6 hidden w-full justify-center sm:flex md:bottom-8">
         <ArrowDown
           data-interactive
-          className="h-8 w-8 text-white animate-bounce cursor-pointer"
+          className="h-8 w-8 cursor-pointer animate-bounce text-white"
           strokeWidth={2}
           onClick={() => {
             document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })

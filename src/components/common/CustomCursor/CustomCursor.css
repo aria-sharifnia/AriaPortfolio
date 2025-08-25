@@ -45,3 +45,10 @@
   top: 0;
   transform: translate(-50%, -50%);
 }
+
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+}

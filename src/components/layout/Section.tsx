@@ -22,7 +22,6 @@ const bgStyleFor = (kind: NonNullable<SectionProps['background']>): CSSPropertie
           'linear-gradient(180deg, #F3F7FB 0%, #E8EEF5 100%)',
       }
     case 'light':
-    default:
       return {
         background: 'linear-gradient(180deg, #FFFFFF 0%, #FBFDFE 100%)',
       }
