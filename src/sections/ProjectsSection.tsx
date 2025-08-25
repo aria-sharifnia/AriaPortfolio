@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Section from '../components/layout/Section'
 import { ChevronRight, ExternalLink, Github, X } from 'lucide-react'
-import TagPill, { sortTagBadges, TAG_STYLES } from '@/components/common/TagPill'
+import TagPill from '@/components/common/TagPill'
 import PrimaryButton from '@/components/common/PrimaryButton/PrimaryButton'
 import type { TagKind } from '@/api/experience'
+import { sortTagBadges } from '@/utils/tags'
+import { TAG_STYLES } from '@/theme/tagStyles'
 
 type BlogSection = { heading?: string; body: string }
 type Project = {

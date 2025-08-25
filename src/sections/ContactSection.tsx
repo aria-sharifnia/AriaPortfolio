@@ -65,7 +65,9 @@ const ContactSection: FC = () => {
               key={l.label || i}
               className={`rounded-2xl p-6 shadow-sm ring-1 bg-gradient-to-b to-white ${t.ring} ${t.grad}`}
             >
-              <div className={`mx-auto mb-4 grid size-12 place-items-center rounded-full ring-1 ${t.ring}`}>
+              <div
+                className={`mx-auto mb-4 grid size-12 place-items-center rounded-full ring-1 ${t.ring}`}
+              >
                 <InlineSvg src={mediaUrl(l.iconSVG?.url)} className="size-5" />
               </div>
 
@@ -90,12 +92,7 @@ const ContactSection: FC = () => {
                 }}
                 className={`mt-4 flex w-full justify-center rounded-full px-5 py-3 font-semibold text-white shadow ${t.btn}`}
               >
-                {l.buttonText ||
-                  (hasFile
-                    ? 'Download'
-                    : l.label?.toLowerCase() === 'email'
-                    ? 'Send Message'
-                    : 'Open')}
+                {l.buttonText}
               </PrimaryButton>
             </div>
           )

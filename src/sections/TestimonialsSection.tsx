@@ -1,9 +1,10 @@
 import type { FC } from 'react'
 import Section from '../components/layout/Section'
-import { Quote, ExternalLink, Linkedin } from 'lucide-react'
-import TagPill, { sortTagBadges } from '@/components/common/TagPill'
+import { Quote, ExternalLink } from 'lucide-react'
+import TagPill from '@/components/common/TagPill'
 import { useTestimonials } from '@/hooks/useTestimonials'
 import type { TestimonialItem } from '@/api/testimonials'
+import { sortTagBadges } from '@/utils/tags'
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
@@ -45,9 +46,7 @@ const TestimonialCard: FC<{ t: TestimonialItem }> = ({ t }) => {
         >
           {t.socialIconUrl ? (
             <img src={t.socialIconUrl} alt="" className="h-6 w-6 md:h-7 md:w-7" />
-          ) : (
-            <Linkedin className="h-6 w-6 md:h-7 md:w-7" />
-          )}
+          ) : null}
         </a>
       ) : null}
     </>
