@@ -8,22 +8,25 @@ import SkillsSection from './sections/SkillsSection'
 import TestimonialsSection from './sections/TestimonialsSection'
 import ContactSection from './sections/ContactSection'
 import BootStrapiGuard from './components/system/BootStrapiGuard'
+import { VersionGate } from './VersionGate'
 
 function App() {
   return (
     <div id="site-root">
       <CustomCursor />
       <BootStrapiGuard>
-        <Header />
-        <main>
-          <HomeSection />
-          <AboutSection />
-          <SkillsSection />
-          <ExperiencesSection />
-          <ProjectsSection />
-          <TestimonialsSection />
-          <ContactSection />
-        </main>
+        <VersionGate>
+          <Header />
+          <main>
+            <HomeSection />
+            <AboutSection />
+            <SkillsSection />
+            <ExperiencesSection />
+            <ProjectsSection />
+            <TestimonialsSection />
+            <ContactSection />
+          </main>
+        </VersionGate>
       </BootStrapiGuard>
     </div>
   )
