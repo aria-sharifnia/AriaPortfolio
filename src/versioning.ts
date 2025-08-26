@@ -6,41 +6,85 @@ export type VersionManifest = {
 }
 
 const VERSIONS_KEY = 'portfolioVersions'
+const MANIFEST_COOLDOWN_MS = 5 * 60 * 1000
+const MANIFEST_CACHE_KEY = 'manifestCache'
+
+function shouldBypassCooldown(): boolean {
+  try {
+    return new URL(window.location.href).searchParams.get('forceVersionCheck') === '1'
+  } catch {
+    return false
+  }
+}
 
 export function loadSavedManifest(): VersionManifest | null {
   try {
     return JSON.parse(localStorage.getItem(VERSIONS_KEY) || 'null')
   } catch {
+    try {
+      localStorage.removeItem(VERSIONS_KEY)
+    } catch {
+      void 0
+    }
     return null
   }
 }
-export function saveManifest(v: VersionManifest) {
+
+export function saveManifest(v: VersionManifest): void {
   localStorage.setItem(VERSIONS_KEY, JSON.stringify(v))
 }
 
 export async function fetchManifest(): Promise<VersionManifest> {
+  const force = shouldBypassCooldown()
+  const now = Date.now()
+
+  if (!force) {
+    const cachedRaw = localStorage.getItem(MANIFEST_CACHE_KEY)
+    if (cachedRaw) {
+      try {
+        const cached: { ts: number; data: VersionManifest } = JSON.parse(cachedRaw)
+        if (now - cached.ts < MANIFEST_COOLDOWN_MS) {
+          return cached.data
+        }
+      } catch {
+        try {
+          localStorage.removeItem(MANIFEST_CACHE_KEY)
+        } catch {
+          void 0
+        }
+      }
+    }
+  }
+
   const base = (import.meta.env.VITE_STRAPI_URL as string).replace(/\/$/, '')
   const res = await fetch(
     `${base}/api/manifest?fields=globalVersion,homeVersion,aboutVersion,contactVersion,skillsVersion,experienceVersion,testimonialsVersion`,
     { cache: 'no-store' }
   )
   if (!res.ok) throw new Error(`manifest fetch failed: ${res.status}`)
-  const json = await res.json()
-  const a = json?.data?.attributes || {}
 
-  const sections = {
-    home: a.homeVersion ?? null,
-    about: a.aboutVersion ?? null,
-    contact: a.contactVersion ?? null,
-    skills: a.skillsVersion ?? null,
-    experience: a.experienceVersion ?? null,
-    testimonials: a.testimonialsVersion ?? null,
-  } as VersionManifest['sections']
+  const json: { data?: { attributes?: Record<string, unknown> } } = await res.json()
+  const a = (json.data?.attributes || {}) as Record<string, unknown>
 
-  return {
-    globalVersion: a.globalVersion ?? '',
-    sections,
+  const data: VersionManifest = {
+    globalVersion: (a.globalVersion as string) ?? '',
+    sections: {
+      home: (a.homeVersion as string) ?? null,
+      about: (a.aboutVersion as string) ?? null,
+      contact: (a.contactVersion as string) ?? null,
+      skills: (a.skillsVersion as string) ?? null,
+      experience: (a.experienceVersion as string) ?? null,
+      testimonials: (a.testimonialsVersion as string) ?? null,
+    },
   }
+
+  try {
+    localStorage.setItem(MANIFEST_CACHE_KEY, JSON.stringify({ ts: now, data }))
+  } catch {
+    void 0
+  }
+
+  return data
 }
 
 export function diffSections(a: VersionManifest | null, b: VersionManifest): SectionKey[] {
