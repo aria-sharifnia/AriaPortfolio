@@ -9,25 +9,28 @@ import TestimonialsSection from './sections/TestimonialsSection'
 import ContactSection from './sections/ContactSection'
 import BootStrapiGuard from './components/system/BootStrapiGuard'
 import { VersionGate } from './VersionGate'
+import { ManifestProvider } from './ManifestProvider'
 
 function App() {
   return (
     <div id="site-root">
       <CustomCursor />
-      <BootStrapiGuard>
-        <VersionGate>
-          <Header />
-          <main>
-            <HomeSection />
-            <AboutSection />
-            <SkillsSection />
-            <ExperiencesSection />
-            <ProjectsSection />
-            <TestimonialsSection />
-            <ContactSection />
-          </main>
-        </VersionGate>
-      </BootStrapiGuard>
+      <ManifestProvider>
+        <BootStrapiGuard>
+          <VersionGate>
+            <Header />
+            <main>
+              <HomeSection />
+              <AboutSection />
+              <SkillsSection />
+              <ExperiencesSection />
+              <ProjectsSection />
+              <TestimonialsSection />
+              <ContactSection />
+            </main>
+          </VersionGate>
+        </BootStrapiGuard>
+      </ManifestProvider>
     </div>
   )
 }
