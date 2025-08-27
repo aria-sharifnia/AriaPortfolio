@@ -44,19 +44,12 @@ export async function fetchManifest(): Promise<VersionManifest> {
     throw new Error('VITE_STRAPI_URL missing')
   }
   const base = raw.replace(/\/$/, '')
-  const url =
-    `${base}/api/manifest?fields=` +
-    [
-      'globalVersion',
-      'homeVersion',
-      'aboutVersion',
-      'contactVersion',
-      'skillsVersion',
-      'experienceVersion',
-      'testimonialsVersion',
-    ].join(',')
+  const url = `${base}/api/manifest` // <-- no fields param
 
-  if (isDebug()) {
+  const debug = (() => {
+    try { return new URL(window.location.href).searchParams.get('debug') === '1' } catch { return false }
+  })()
+  if (debug) {
     console.log('[Manifest] Using STRAPI URL:', base)
     console.log('[Manifest] GET', url)
   }
@@ -88,7 +81,7 @@ export async function fetchManifest(): Promise<VersionManifest> {
     },
   }
 
-  if (isDebug()) console.log('[Manifest] LIVE:', data)
+  if (debug) console.log('[Manifest] LIVE:', data)
   return data
 }
 
