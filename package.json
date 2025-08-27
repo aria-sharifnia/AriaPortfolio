@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/generate-sitemap.mjs",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-og.mjs",
+    "og": "node scripts/generate-og.mjs",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "postinstall": "playwright install chromium"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
@@ -36,6 +38,7 @@
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.3.0",
+    "playwright": "^1.55.0",
     "prettier": "^3.6.2",
     "sitemap": "^8.0.0",
     "typescript": "~5.8.3",
