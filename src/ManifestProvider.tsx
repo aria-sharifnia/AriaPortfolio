@@ -55,6 +55,7 @@ export function ManifestProvider({ children }: { children: React.ReactNode }) {
 
   const run = async (): Promise<boolean> => {
     if (inFlight.current) return ok
+    if (ok) return true
     inFlight.current = true
     try {
       const saved = loadSavedManifest()

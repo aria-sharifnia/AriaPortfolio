@@ -1,24 +1,8 @@
-import { useEffect } from 'react'
-import GlobalErrorOverlay from './GlobalErrorOverlay'
 import { useManifest } from '@/ManifestProvider'
+import GlobalErrorOverlay from './GlobalErrorOverlay'
 
 export default function BootStrapiGuard({ children }: { children: React.ReactNode }) {
   const { ready, ok, refetch } = useManifest()
-
-  useEffect(() => {
-    const onOnline = () => void refetch()
-    const onVis = () => {
-      if (document.visibilityState === 'visible') {
-        setTimeout(() => void refetch(), 120)
-      }
-    }
-    window.addEventListener('online', onOnline)
-    document.addEventListener('visibilitychange', onVis)
-    return () => {
-      window.removeEventListener('online', onOnline)
-      document.removeEventListener('visibilitychange', onVis)
-    }
-  }, [refetch])
 
   return (
     <>
