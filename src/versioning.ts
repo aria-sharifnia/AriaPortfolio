@@ -37,14 +37,11 @@ export function saveManifest(v: VersionManifest): void {
 export async function fetchManifest(): Promise<VersionManifest> {
   const raw = import.meta.env.VITE_STRAPI_URL as string | undefined
   if (!raw) {
-    console.error(
-      '[Manifest] VITE_STRAPI_URL is MISSING. ' +
-      'On Vercel, make sure it is set for the **Production** environment.'
-    )
+    console.error('[Manifest] VITE_STRAPI_URL is MISSING. Set it in Vercel Production.')
     throw new Error('VITE_STRAPI_URL missing')
   }
   const base = raw.replace(/\/$/, '')
-  const url = `${base}/api/manifest` // <-- no fields param
+  const url = `${base}/api/manifest`
 
   const debug = (() => {
     try { return new URL(window.location.href).searchParams.get('debug') === '1' } catch { return false }
@@ -66,8 +63,16 @@ export async function fetchManifest(): Promise<VersionManifest> {
     throw new Error(`manifest fetch failed: ${res.status}`)
   }
 
-  const json: { data?: { attributes?: Record<string, unknown> } } = await res.json()
-  const a = (json.data?.attributes || {}) as Record<string, unknown>
+  // v5: fields are on data.* (no attributes)
+  // v4: fields are on data.attributes.*
+  const json: any = await res.json()
+  if (debug) console.log('[Manifest] RAW JSON:', json)
+
+  const root = json?.data ?? {}
+  const a: Record<string, unknown> =
+    root && typeof root === 'object' && 'attributes' in root && root.attributes
+      ? (root.attributes as Record<string, unknown>) // v4
+      : (root as Record<string, unknown>)            // v5
 
   const data: VersionManifest = {
     globalVersion: (a.globalVersion as string) ?? '',
