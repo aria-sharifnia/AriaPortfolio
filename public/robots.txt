@@ -77,7 +77,6 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /test-
 Allow: /
-Allow: /api/og/*
 
 # Point to your sitemap
 Sitemap: https://aria.binarybridges.ca/sitemap.xml
