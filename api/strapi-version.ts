@@ -18,6 +18,8 @@ type ManifestFields = {
 
 type StrapiWebhook = {
   model?: string
+  contentType?: string
+  uid?: string
   event?: string
   entry?: { updatedAt?: string }
 }
@@ -86,9 +88,9 @@ export default async function handler(req: ReqLike, res: ResLike) {
     const body: StrapiWebhook =
       typeof req.body === 'string' ? JSON.parse(req.body) : (req.body as StrapiWebhook) || {}
 
-    const model = body.model
+    const model = body.model || body.contentType || body.uid
     if (!model || !(model in MODEL_TO_FIELD)) {
-      return res.status(200).json({ ok: true, skipped: 'model not mapped', model })
+      return res.status(200).json({ ok: true, skipped: 'model not mapped', model, body })
     }
 
     const manifest = await getManifest()
