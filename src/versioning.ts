@@ -38,30 +38,54 @@ export async function fetchManifest(): Promise<VersionManifest> {
   const force = shouldBypassCooldown()
   const now = Date.now()
 
+  // --- DIAGNOSTIC: show we're in Production + what URL we'll use
+  const raw = import.meta.env.VITE_STRAPI_URL as string | undefined
+  if (!raw) {
+    console.error(
+      '[Manifest] VITE_STRAPI_URL is MISSING. ' +
+        'On Vercel, make sure it is set for the **Production** environment.'
+    )
+    throw new Error('VITE_STRAPI_URL missing')
+  }
+  const base = raw.replace(/\/$/, '')
+  const manifestUrl = `${base}/api/manifest?fields=globalVersion,homeVersion,aboutVersion,contactVersion,skillsVersion,experienceVersion,testimonialsVersion`
+  if (new URL(window.location.href).searchParams.get('debug') === '1') {
+    console.log('[Manifest] Using STRAPI URL:', base)
+    console.log('[Manifest] GET', manifestUrl)
+  }
+
+  // cooldown (skipped when force=1)
   if (!force) {
     const cachedRaw = localStorage.getItem(MANIFEST_CACHE_KEY)
     if (cachedRaw) {
       try {
         const cached: { ts: number; data: VersionManifest } = JSON.parse(cachedRaw)
         if (now - cached.ts < MANIFEST_COOLDOWN_MS) {
+          if (new URL(window.location.href).searchParams.get('debug') === '1') {
+            console.log('[Manifest] Using cached manifest (cooldown)')
+          }
           return cached.data
         }
       } catch {
         try {
           localStorage.removeItem(MANIFEST_CACHE_KEY)
-        } catch {
-          void 0
-        }
+        } catch {}
       }
     }
   }
 
-  const base = (import.meta.env.VITE_STRAPI_URL as string).replace(/\/$/, '')
-  const res = await fetch(
-    `${base}/api/manifest?fields=globalVersion,homeVersion,aboutVersion,contactVersion,skillsVersion,experienceVersion,testimonialsVersion`,
-    { cache: 'no-store' }
-  )
-  if (!res.ok) throw new Error(`manifest fetch failed: ${res.status}`)
+  // network call
+  let res: Response
+  try {
+    res = await fetch(manifestUrl, { cache: 'no-store', mode: 'cors' })
+  } catch (e) {
+    console.error('[Manifest] Network error calling manifest:', e)
+    throw e
+  }
+  if (!res.ok) {
+    console.error('[Manifest] HTTP', res.status, 'while fetching manifest')
+    throw new Error(`manifest fetch failed: ${res.status}`)
+  }
 
   const json: { data?: { attributes?: Record<string, unknown> } } = await res.json()
   const a = (json.data?.attributes || {}) as Record<string, unknown>
@@ -78,11 +102,13 @@ export async function fetchManifest(): Promise<VersionManifest> {
     },
   }
 
+  if (new URL(window.location.href).searchParams.get('debug') === '1') {
+    console.log('[Manifest] LIVE:', data)
+  }
+
   try {
     localStorage.setItem(MANIFEST_CACHE_KEY, JSON.stringify({ ts: now, data }))
-  } catch {
-    void 0
-  }
+  } catch {}
 
   return data
 }
@@ -94,4 +120,16 @@ export function diffSections(a: VersionManifest | null, b: VersionManifest): Sec
     if (a.sections[k] !== b.sections[k]) changed.push(k)
   })
   return changed
+}
+
+function maybeClearCachesFromUrl() {
+  const u = new URL(window.location.href)
+  if (u.searchParams.get('clearCache') === '1') {
+    try {
+      localStorage.removeItem('portfolio-query-cache-v1')
+      localStorage.removeItem('manifestCache')
+      localStorage.removeItem('portfolioVersions')
+      console.log('[Manifest] Cleared local caches (query param)')
+    } catch {}
+  }
 }
