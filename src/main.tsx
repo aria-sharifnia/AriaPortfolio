@@ -4,8 +4,11 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { inject } from '@vercel/analytics'
 import App from './App'
 import './styles/globals.css'
+
+inject()
 
 const queryClient = new QueryClient({
   defaultOptions: {
