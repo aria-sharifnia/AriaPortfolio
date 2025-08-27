@@ -1,50 +1,36 @@
-import { chromium } from 'playwright'
-import { mkdir } from 'fs/promises'
-import { existsSync } from 'fs'
+import { writeFile, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
 
-const vercelUrl =
-  process.env.VERCEL_URL && process.env.VERCEL_URL.startsWith('http')
-    ? process.env.VERCEL_URL
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : null
+const TARGET_URL =
+  process.env.OG_URL || 'https://aria.binarybridges.ca/?og=1';
 
-const TARGET_URL = process.env.OG_URL || vercelUrl || 'https://aria.binarybridges.ca/?og=1'
+// Microlink will render a screenshot and return a CDN URL.
+// (Free for light use; good enough for one image per deploy.)
+const api = `https://api.microlink.io/?url=${encodeURIComponent(
+  TARGET_URL
+)}&screenshot=true&meta=false&embed=screenshot.url&viewport.width=1200&viewport.height=630&screenshot.type=jpeg&waitUntil=networkidle`;
 
-const OUT_DIR = existsSync('dist') ? 'dist' : 'public'
+const OUT_DIR = existsSync('dist') ? 'dist' : 'public';
+const OUT_PATH = `${OUT_DIR}/og.jpg`;
 
 async function run() {
-  await mkdir(OUT_DIR, { recursive: true })
+  console.log('➡️  Requesting screenshot for', TARGET_URL);
+  const res = await fetch(api);
+  if (!res.ok) throw new Error(`Microlink API error: ${res.status}`);
+  const json = await res.json();
+  const shotUrl = json?.data?.screenshot?.url;
+  if (!shotUrl) throw new Error('No screenshot URL in response');
 
-  const browser = await chromium.launch()
-  const page = await browser.newPage({
-    viewport: { width: 1200, height: 630 },
-    deviceScaleFactor: 1,
-  })
+  const img = await fetch(shotUrl);
+  if (!img.ok) throw new Error(`Image fetch failed: ${img.status}`);
+  const buf = Buffer.from(await img.arrayBuffer());
 
-  await page.goto(TARGET_URL, { waitUntil: 'networkidle' })
-
-  await page.addStyleTag({
-    content: `
-      * { animation: none !important; transition: none !important; }
-      video, canvas, .noise, .cursor { display: none !important; }
-      html, body { background: #0b2945 !important; }
-    `,
-  })
-
-  await page.waitForSelector('#home', { timeout: 3000 }).catch(() => {})
-
-  await page.screenshot({
-    path: `${OUT_DIR}/og.jpg`,
-    type: 'jpeg',
-    quality: 90,
-  })
-
-  await browser.close()
-  console.log('✅ Saved social image →', `${OUT_DIR}/og.jpg`)
+  await mkdir(OUT_DIR, { recursive: true });
+  await writeFile(OUT_PATH, buf);
+  console.log('✅ Saved social image →', OUT_PATH);
 }
 
 run().catch((e) => {
-  console.error('❌ OG generation failed:', e)
-  process.exit(1)
-})
+  console.error('❌ OG generation failed:', e);
+  process.exit(1);
+});
