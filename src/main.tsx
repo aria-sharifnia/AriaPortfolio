@@ -2,12 +2,8 @@ import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
-import { SpeedInsights } from '@vercel/speed-insights/react'
-import { inject } from '@vercel/analytics'
 import App from './App'
 import './styles/globals.css'
-
-inject()
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,15 +29,19 @@ const persister = createAsyncStoragePersister({
 })
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <PersistQueryClientProvider
-    client={queryClient}
-    persistOptions={{
-      persister,
-    }}
-  >
+  <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
     <QueryClientProvider client={queryClient}>
       <App />
-      <SpeedInsights />
     </QueryClientProvider>
   </PersistQueryClientProvider>
 )
+
+if (import.meta.env.PROD) {
+  const idle = (cb: () => void) => window.requestIdleCallback?.(cb) ?? setTimeout(cb, 1)
+
+  idle(() => {
+    import('@vercel/analytics').then(({ inject }) => inject()).catch(() => {})
+
+    import('@vercel/speed-insights').then(() => {}).catch(() => {})
+  })
+}
