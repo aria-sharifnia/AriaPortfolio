@@ -7,27 +7,18 @@ export default async function handler(req, res) {
       return res.status(500).json({ ok: false, error: 'Missing STRAPI env vars' })
     }
 
-    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
-    const bypass = url.searchParams.get('bypass') === '1'
-
     const upstream = await fetch(`${STRAPI_URL}/api/manifest`, {
       headers: { Authorization: `Bearer ${TOKEN}` },
     })
-    const text = await upstream.text()
+    const body = await upstream.text()
 
     res.setHeader('Content-Type', 'application/json')
     res.setHeader('x-manifest-proxy', '1')
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    res.setHeader('CDN-Cache-Control', 's-maxage=600, stale-while-revalidate=300')
+    res.setHeader('Surrogate-Control', 's-maxage=600, stale-while-revalidate=300')
 
-    if (bypass) {
-      res.setHeader('Cache-Control', 'no-store')
-      res.setHeader('CDN-Cache-Control', 'no-store')
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-      res.setHeader('CDN-Cache-Control', 's-maxage=60, stale-while-revalidate=300')
-      res.setHeader('Surrogate-Control', 's-maxage=60, stale-while-revalidate=300')
-    }
-
-    return res.status(upstream.status).send(text)
+    return res.status(upstream.status).send(body)
   } catch (e) {
     console.error('[manifest-proxy] error:', e?.message || e)
     return res.status(500).json({ ok: false, error: 'proxy failed' })
