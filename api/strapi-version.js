@@ -6,7 +6,6 @@ const TOKEN = process.env.STRAPI_MANIFEST_TOKEN
 
 const hash = (s) => crypto.createHash('sha1').update(s).digest('hex')
 
-// get single-type updatedAt (supports Strapi v5 + v4 shapes)
 async function getUpdatedAt(type) {
   const res = await fetch(`${STRAPI_URL}/api/${type}`, {
     headers: { Authorization: `Bearer ${TOKEN}` },
@@ -18,11 +17,9 @@ async function getUpdatedAt(type) {
   const json = await res.json()
   const data = json?.data
   if (!data) return null
-  // v5 single types -> data.* fields directly
   if (data && typeof data === 'object' && !('attributes' in data)) {
     return data.updatedAt ?? null
   }
-  // v4 single types -> data.attributes.*
   return data?.attributes?.updatedAt ?? null
 }
 
@@ -35,7 +32,7 @@ async function getManifest() {
     return null
   }
   const json = await res.json()
-  return json?.data ?? null // v5: data.* ; v4 would be data.attributes
+  return json?.data ?? null
 }
 
 async function setManifest(fields) {
@@ -53,7 +50,6 @@ async function setManifest(fields) {
   }
 }
 
-// parse secret from header OR querystring (works for webhook & manual)
 function readIncomingSecret(req) {
   const headerSecret = req.headers['x-secret']
   try {
@@ -65,20 +61,36 @@ function readIncomingSecret(req) {
   }
 }
 
+function getModelFromBody(req) {
+  try {
+    const b = req.body || {}
+    return b.model || b.modelUid || b?.event?.model || null
+  } catch {
+    return null
+  }
+}
+
 export default async function handler(req, res) {
   try {
     if (!STRAPI_URL || !SECRET || !TOKEN) {
-      console.error('[manifest] missing envs VITE_STRAPI_URL/STRAPI_WEBHOOK_SECRET/STRAPI_MANIFEST_TOKEN')
+      console.error(
+        '[manifest] missing envs VITE_STRAPI_URL/STRAPI_WEBHOOK_SECRET/STRAPI_MANIFEST_TOKEN'
+      )
       return res.status(500).json({ ok: false, error: 'Missing required env vars' })
     }
 
-    // authorize
     const incomingSecret = readIncomingSecret(req)
     if (incomingSecret !== SECRET) {
       return res.status(401).send('Unauthorized')
     }
 
-    // recompute ALL versions directly from Strapi (robust, dashboard-only)
+    if (req.method === 'POST') {
+      const model = getModelFromBody(req)
+      if (typeof model === 'string' && model.includes('api::manifest')) {
+        return res.status(200).json({ ok: true, ignored: 'manifest' })
+      }
+    }
+
     const [home, about, contact, skills, experience, testimonials] = await Promise.all([
       getUpdatedAt('home'),
       getUpdatedAt('about'),
@@ -88,12 +100,9 @@ export default async function handler(req, res) {
       getUpdatedAt('testimonial'),
     ])
 
-    // precaution: load current manifest so we never overwrite with nulls on transient errors
     const current = await getManifest()
     const currentFields =
-      current && !('attributes' in current) // v5
-        ? current
-        : current?.attributes || {}
+      current && !('attributes' in current) ? current : current?.attributes || {}
 
     const fields = {
       homeVersion: home ?? currentFields.homeVersion ?? null,
@@ -104,6 +113,18 @@ export default async function handler(req, res) {
       testimonialsVersion: testimonials ?? currentFields.testimonialsVersion ?? null,
     }
 
+    const unchanged =
+      fields.homeVersion === currentFields.homeVersion &&
+      fields.aboutVersion === currentFields.aboutVersion &&
+      fields.contactVersion === currentFields.contactVersion &&
+      fields.skillsVersion === currentFields.skillsVersion &&
+      fields.experienceVersion === currentFields.experienceVersion &&
+      fields.testimonialsVersion === currentFields.testimonialsVersion
+
+    if (unchanged) {
+      return res.status(200).json({ ok: true, unchanged: true })
+    }
+
     const concat = [
       fields.homeVersion,
       fields.aboutVersion,
@@ -112,7 +133,6 @@ export default async function handler(req, res) {
       fields.experienceVersion,
       fields.testimonialsVersion,
     ].join('|')
-
     const globalVersion = `${hash(concat)}-${new Date().toISOString()}`
 
     await setManifest({ ...fields, globalVersion })
