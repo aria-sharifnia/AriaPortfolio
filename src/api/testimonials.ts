@@ -1,4 +1,4 @@
-import { get } from './strapi'
+import { get, mediaUrl } from './strapi'
 
 export type TestimonialBadge = { label: string; type?: string | null }
 export type TestimonialQuote = { quote: string; date: string }
@@ -62,8 +62,9 @@ const mapCard = (c: StrapiCard): TestimonialItem | null => {
     company: c.company,
     profileUrl: c.profileUrl ?? null,
     sourceUrl: c.sourceUrl ?? null,
-    avatarUrl: c.profilePicture?.url ?? null,
-    socialIconUrl: c.socialIcon?.url ?? null,
+    avatarUrl: c.profilePicture?.url ? (mediaUrl(c.profilePicture.url) ?? null) : null,
+    socialIconUrl: c.socialIcon?.url ? (mediaUrl(c.socialIcon.url) ?? null) : null,
+
     quote: main.quote,
     date: main.date,
     extraQuotes: extras,
