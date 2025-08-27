@@ -20,8 +20,11 @@ export default async function handler(req, res) {
 
     if (bypass) {
       res.setHeader('Cache-Control', 'no-store')
+      res.setHeader('CDN-Cache-Control', 'no-store')
     } else {
-      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300')
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+      res.setHeader('CDN-Cache-Control', 's-maxage=60, stale-while-revalidate=300')
+      res.setHeader('Surrogate-Control', 's-maxage=60, stale-while-revalidate=300')
     }
 
     return res.status(upstream.status).send(text)
