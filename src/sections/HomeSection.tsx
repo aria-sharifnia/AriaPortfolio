@@ -7,8 +7,8 @@ import { mediaUrl } from '../api/strapi'
 import { downloadFile } from '../utils/download'
 import type { SocialMedia } from '../api/about'
 
-const baseButton = 'rounded-full px-10 py-4 text-base font-semibold text-white shadow-md'
-const primaryButton = `${baseButton} bg-teal-400`
+const baseButton = 'rounded-full px-10 py-4 text-base font-semibold shadow-md'
+const primaryButton = `${baseButton} bg-teal-400 text-slate-900`
 const secondaryButton = `${baseButton} border border-white bg-white/10 backdrop-blur-sm`
 
 const HomeSection: FC = () => {
