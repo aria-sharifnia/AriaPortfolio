@@ -5,6 +5,7 @@ import TagPill from '@/components/common/TagPill'
 import { useTestimonials } from '@/hooks/useTestimonials'
 import type { TestimonialItem } from '@/api/testimonials'
 import { sortTagBadges } from '@/utils/tags'
+import { mediaUrl } from '@/api/strapi'
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
@@ -22,7 +23,11 @@ const TestimonialCard: FC<{ t: TestimonialItem }> = ({ t }) => {
     <>
       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 ring-gray-200">
         {t.avatarUrl ? (
-          <img src={t.avatarUrl} alt="" className="h-full w-full object-cover" />
+          <img
+            src={mediaUrl(t.avatarUrl) ?? undefined}
+            alt=""
+            className="h-full w-full object-cover"
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-teal-50 text-sm font-bold text-teal-700">
             {initials}
@@ -45,7 +50,11 @@ const TestimonialCard: FC<{ t: TestimonialItem }> = ({ t }) => {
           className="ml-2 inline-flex items-center text-[#0A66C2] hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 rounded-sm"
         >
           {t.socialIconUrl ? (
-            <img src={t.socialIconUrl} alt="" className="h-6 w-6 md:h-7 md:w-7" />
+            <img
+              src={mediaUrl(t.socialIconUrl) ?? undefined}
+              alt=""
+              className="h-6 w-6 md:h-7 md:w-7"
+            />
           ) : null}
         </a>
       ) : null}

@@ -62,8 +62,8 @@ const mapCard = (c: StrapiCard): TestimonialItem | null => {
     company: c.company,
     profileUrl: c.profileUrl ?? null,
     sourceUrl: c.sourceUrl ?? null,
-    avatarUrl: c.profilePicture?.url ? (mediaUrl(c.profilePicture.url) ?? null) : null,
-    socialIconUrl: c.socialIcon?.url ? (mediaUrl(c.socialIcon.url) ?? null) : null,
+    avatarUrl: mediaUrl(c.profilePicture?.url ?? undefined) ?? null,
+    socialIconUrl: mediaUrl(c.socialIcon?.url ?? undefined) ?? null,
 
     quote: main.quote,
     date: main.date,
