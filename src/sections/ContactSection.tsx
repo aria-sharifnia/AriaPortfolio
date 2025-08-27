@@ -16,7 +16,7 @@ const THEME = {
   sky: {
     ring: 'ring-sky-200',
     grad: 'from-sky-50',
-    btn: 'bg-sky-600',
+    btn: 'bg-sky-700 hover:bg-sky-600',
   },
   slate: {
     ring: 'ring-slate-300',
@@ -26,7 +26,7 @@ const THEME = {
   emerald: {
     ring: 'ring-emerald-200',
     grad: 'from-emerald-50',
-    btn: 'bg-emerald-600',
+    btn: 'bg-emerald-700 hover:bg-emerald-600',
   },
 } as const
 
