@@ -173,9 +173,9 @@ const PORTFOLIO_PROJECT: Project = {
   cover:
     'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop',
   summary:
-    'Content-driven React + TypeScript portfolio. Fast Vite build, Strapi-ready content slots, animated timeline, smooth shared-element modal, and a clean tag system.',
+    'A fast, content-driven React + TypeScript portfolio with Vite build, Strapi-ready backend, custom animations, and a clean tag system. Built from scratch to be fast, scalable, and expressive.',
   description:
-    'A from-scratch portfolio focused on speed, clarity, and maintainability. It uses tiny composable layout primitives (Section, Pill), a FLIP-style shared-element modal for project details, and Strapi-ready content mapping so I can move to a headless CMS without touching the UI layer. The design system stays intentionally small to keep everything consistent and easy to evolve.',
+    'A from-scratch portfolio that doubles as a living lab for design and performance experiments. It uses small composable primitives (Section, Pill), a FLIP-style shared-element modal for project details, Strapi-ready content mapping, and caching strategies for speed. Hosted on Vercel with Lighthouse-verified near-perfect scores.',
   badges: [
     { label: 'React', type: 'frontend' },
     { label: 'TypeScript', type: 'frontend' },
@@ -187,55 +187,67 @@ const PORTFOLIO_PROJECT: Project = {
     { label: 'Lucide Icons', type: 'tools' },
   ],
   highlights: [
+    'Iterative design process inspired by UX Pilot, evolved section by section',
+    'Custom cursor built after many iterations to balance uniqueness & usability',
+    'Skills “bubbles” visualization with dynamic sizing & animations',
     'Shared-element modal (card → dialog) using FLIP + clip-path',
-    'Measured tag row: collapses overflow to “+N” for perfect one-line fit',
-    'Summary clamped for even card heights',
-    'Hover pacing tuned with intent delay + reduced-motion support',
-    'Keyboard friendly: true buttons/roles, focus-visible rings, ESC to close',
-    'Layout primitives (Section, TagPill, TabButton) keep UI consistent',
-    'Strapi-ready content models (portable, no UI rewrites later)',
-    'Fast dev/build via Vite; lazy images; minimal JS on idle',
+    'Caching strategy with Strapi manifest check: only changed sections re-fetch',
+    'Responsive across devices with adjusted layouts for small screens',
+    'Near-perfect Lighthouse scores (performance, accessibility, SEO)',
+    'Hosted on Vercel with Strapi Cloud backend & Vercel Analytics',
   ],
   demoUrl: '/',
   repoUrl: '#',
   blogTitle: 'Designing a portfolio that feels fast, focused, and future-proof',
   blog: [
     {
-      heading: 'Goals',
-      body: 'Be unmistakably fast, keep content first, and avoid design entropy. The previous iteration mixed data and UI. This rebuild separates concerns so I can evolve copy and projects without breaking layouts.',
+      heading: 'Starting Out',
+      body: 'Before writing a line of code, I researched how other Computer Science portfolios were built. I also used UX Pilot as a design springboard...',
     },
     {
-      heading: 'System & Architecture',
-      body: 'I kept the system tiny: Section for page scaffolding, TagPill for taxonomy, and a shared Project modal. Content is plain objects now but maps 1:1 to what Strapi/MDX will return later. Tailwind provides tokens (spacing, radius, ring).',
+      heading: 'Design Iterations',
+      body: 'My design shifted constantly. Early colors didn’t match the feel I wanted, and each section evolved separately. I treated it as an experiment—refining layouts, typography, and color palettes until they felt cohesive.',
     },
     {
-      heading: 'Animation approach',
-      body: 'Animations are additive, never required. The project modal uses a FLIP approach: measure the card, morph the dialog with a transform+clip-path combo, and fade content after the transition. Hover effects use intent delay and respect prefers-reduced-motion.',
+      heading: 'Tools & Tech Choices',
+      body: 'I chose React...',
     },
     {
-      heading: 'Accessibility',
-      body: 'Cards behave like buttons with keyboard activation (Enter/Space), focus-visible rings, ESC to close, inert background via body scroll lock, and ARIA labels for dialog controls. The tag row stays readable at any width.',
+      heading: 'Custom Cursor',
+      body: 'One of the most experimental parts of the site...',
     },
     {
-      heading: 'Performance choices',
-      body: 'Vite for quick HMR and lean bundles, lazy images, and minimal third-party deps. The timeline and modal avoid layout thrash: transforms on GPU, no animating border radius directly (clip-path instead).',
+      heading: 'Skills Visualization',
+      body: 'I wanted the skills section to feel alive...',
+    },
+    {
+      heading: 'Experiences & Projects',
+      body: 'The experiences timeline was the hardest section to design...',
+    },
+    {
+      heading: 'Backend & Hosting',
+      body: 'I hosted the frontend on Vercel for simplicity and speed...',
+    },
+    {
+      heading: 'Performance & SEO',
+      body: 'I tested the site with Lighthouse and reached near-perfect scores...',
     },
     {
       heading: 'Challenges',
-      body: 'Keeping the reverse-morph clean when users scroll after opening the modal. I solved it by reading the live anchor rect on close and delaying the card content reveal until the reverse FLIP is essentially done.',
+      body: 'The biggest struggles were fixing cursor lag, smoothing bubble animations, and designing a timeline that balanced information density with clarity. Each of these forced me to learn more about performance and UX details.',
     },
     {
-      heading: 'What I learned',
-      body: 'A tiny design system beats a big one for a solo site. Animation polish matters most at state changes (open/close), not everywhere. Building CMS-ready mapping early saves rework later.',
+      heading: 'What I Learned',
+      body: 'This project taught me the value of iteration...',
     },
     {
-      heading: 'Next steps',
-      body: 'Swap local objects for Strapi/MDX, add visual diff screenshots for UI PRs, and expand interaction tests around the modal and timeline.',
+      heading: 'Future Plans',
+      body: 'I want to expand this blog section with deeper technical dives, add more projects with their own stories, and refine SEO/analytics so I can track how people use the site.',
     },
   ],
 }
 
-type TabKey = 'overview' | 'case-study'
+type TabKey = 'overview' | 'blog'
 const TabButton = ({
   active,
   onClick,
@@ -396,7 +408,7 @@ const ProjectCard: React.FC<{
           {project.period && <DatePill>{project.period}</DatePill>}
         </div>
 
-        <p className="mt-2 text-slate-600 line-clamp-3">{project.summary}</p>
+        <p className="mt-2 text-slate-600 line-clamp-3">{project.description ?? project.summary}</p>
 
         {!!project.badges?.length && (
           <div>
@@ -652,8 +664,8 @@ const ProjectModal: React.FC<ModalProps> = ({
                 <TabButton active={tab === 'overview'} onClick={() => setTab('overview')}>
                   Overview
                 </TabButton>
-                <TabButton active={tab === 'case-study'} onClick={() => setTab('case-study')}>
-                  {derivedReadMins ? `Case Study · ${derivedReadMins} min` : 'Case Study'}
+                <TabButton active={tab === 'blog'} onClick={() => setTab('blog')}>
+                  {derivedReadMins ? `Blog · ${derivedReadMins} min` : 'Blog'}
                 </TabButton>
               </div>
             </div>
@@ -689,7 +701,7 @@ const ProjectModal: React.FC<ModalProps> = ({
                 </div>
               )}
 
-              {tab === 'case-study' && (
+              {tab === 'blog' && (
                 <article className="max-w-none text-[15px] leading-7 text-slate-700">
                   {project.blogTitle && (
                     <h2 className="mt-0 mb-3 text-xl md:text-2xl font-bold text-slate-900">
@@ -768,7 +780,7 @@ const ProjectsSection: React.FC = () => {
     <Section
       id="projects"
       title="Projects"
-      description="Selected work—click the card to morph into a full view with overview + a short case study."
+      description="Showcasing key projects that demonstrate design, development, and innovation"
       background="gray"
     >
       <div className="mx-auto max-w-6xl">
