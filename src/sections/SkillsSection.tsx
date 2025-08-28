@@ -150,6 +150,7 @@ const SkillsSection: FC = () => {
   })
 
   const [ready, setReady] = useState(false)
+  const [iconsLoaded, setIconsLoaded] = useState(false)
   const firstPaintRef = useRef(true)
   const tablistRef = useRef<HTMLDivElement | null>(null)
   const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -173,6 +174,11 @@ const SkillsSection: FC = () => {
         if (it.icon) urls.add(it.icon)
       }
 
+    if (urls.size === 0) {
+      setIconsLoaded(true)
+      return
+    }
+
     const promises = Array.from(urls).map((url) => {
       return new Promise<void>((resolve) => {
         const img = new Image()
@@ -182,7 +188,13 @@ const SkillsSection: FC = () => {
       })
     })
 
-    Promise.all(promises).catch(() => {})
+    Promise.all(promises)
+      .then(() => {
+        setIconsLoaded(true)
+      })
+      .catch(() => {
+        setIconsLoaded(true)
+      })
   }, [categories])
 
   useLayoutEffect(() => {
@@ -212,8 +224,8 @@ const SkillsSection: FC = () => {
 
   useLayoutEffect(() => {
     const box = boxRef.current
-    if (!activeCat?.items?.length || !box) {
-      if (firstPaintRef.current) setReady(true)
+    if (!activeCat?.items?.length || !box || !iconsLoaded) {
+      if (firstPaintRef.current && iconsLoaded) setReady(true)
       return
     }
 
@@ -286,7 +298,7 @@ const SkillsSection: FC = () => {
       setReady(true)
       firstPaintRef.current = false
     }
-  }, [active, activeCat?.title, activeCat?.items?.length])
+  }, [active, activeCat?.title, activeCat?.items?.length, iconsLoaded])
 
   useEffect(() => {
     const box = boxRef.current
@@ -506,7 +518,7 @@ const SkillsSection: FC = () => {
         <div
           ref={boxRef}
           className="relative h-[340px] sm:h-[400px] md:h-[460px] lg:h-[520px] overflow-hidden rounded-3xl"
-          style={{ background: SKILLS_BG, visibility: ready ? 'visible' : 'hidden' }}
+          style={{ background: SKILLS_BG, visibility: ready && iconsLoaded ? 'visible' : 'hidden' }}
         >
           {(activeCat?.items ?? []).map((item, i) => {
             const diameter = sizeForLevel(item.level, sizeRange)
