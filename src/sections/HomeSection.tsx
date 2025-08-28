@@ -16,7 +16,7 @@ const HomeSection: FC = () => {
   const { data: about } = useAbout()
   const resumeSocial = about?.socials?.find((s: SocialMedia) => s.file?.url)
   const resumeHref = resumeSocial?.file?.url ? mediaUrl(resumeSocial.file.url) : undefined
-  const resumeBtnText = home?.downloadResumeLabel
+  const resumeBtnText = home?.downloadResumeLabel ?? 'Download My Resume'
   const resumeAria = resumeSocial?.label
 
   async function handleResumeClick(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -50,20 +50,24 @@ const HomeSection: FC = () => {
         </span>
 
         <h1 className="text-center text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
-          {home?.greeting} <span className="text-teal-400">{home?.highlightedName}</span>
+          {home?.greeting ?? "Hi, I'm"}{' '}
+          <span className="text-teal-400">
+            {home?.highlightedName ?? 'Aria'}
+          </span>
         </h1>
 
         <p className="mt-6 text-center text-2xl font-semibold text-gray-200 sm:text-3xl">
-          {home?.jobTitle}
+          {home?.jobTitle ?? 'Computer Science Student & Full-Stack Developer'}
         </p>
 
         <p className="mt-8 max-w-4xl text-center text-lg text-gray-300 sm:text-xl">
-          {home?.tagLine}
+          {home?.tagLine ??
+            'I build thoughtful, reliable software—turning ideas into useful technology that makes life easier, because crafting elegant solutions is what I enjoy most.'}
         </p>
 
         <div className="mt-14 flex flex-wrap justify-center gap-8">
           <PrimaryButton href="#projects" className={primaryButton}>
-            {home?.viewMyWorkLabel}
+            {home?.viewMyWorkLabel ?? 'View My Projects'}
             <ArrowDown className="h-5 w-5 -mt-0.5" strokeWidth={2} />
           </PrimaryButton>
 
