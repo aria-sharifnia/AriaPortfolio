@@ -7,17 +7,29 @@ import { mediaUrl } from '../api/strapi'
 import { downloadFile } from '../utils/download'
 import type { SocialMedia } from '../api/about'
 
-const baseButton = 'rounded-full px-10 py-4 text-base font-semibold shadow-md'
-const primaryButton = `${baseButton} bg-teal-400 text-slate-900`
-const secondaryButton = `${baseButton} border border-white/40 bg-white/5 sm:bg-white/10 sm:backdrop-blur-sm`
+const styles = {
+  baseButton: 'rounded-full px-10 py-4 text-base font-semibold shadow-md',
+  primaryButton:
+    'rounded-full px-10 py-4 text-base font-semibold shadow-md bg-teal-400 text-slate-900',
+  secondaryButton:
+    'rounded-full px-10 py-4 text-base font-semibold shadow-md border border-white/40 bg-white/5 sm:bg-white/10 sm:backdrop-blur-sm',
+}
 
 const HomeSection: FC = () => {
   const { data: home } = useHome()
   const { data: about } = useAbout()
+
   const resumeSocial = about?.socials?.find((s: SocialMedia) => s.file?.url)
   const resumeHref = resumeSocial?.file?.url ? mediaUrl(resumeSocial.file.url) : undefined
   const resumeBtnText = home?.downloadResumeLabel ?? 'Download My Resume'
   const resumeAria = resumeSocial?.label
+
+  const handleScrollToAbout = () => {
+    const aboutSection = document.querySelector('#about')
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   async function handleResumeClick(e: React.MouseEvent<HTMLAnchorElement>) {
     if (!resumeHref) return
@@ -60,14 +72,18 @@ const HomeSection: FC = () => {
 
         <p
           className="mt-8 max-w-4xl text-center text-lg text-gray-300 sm:text-xl"
-          style={{ minHeight: '3.25rem' }}
+          style={{
+            minHeight: '3.25rem',
+            willChange: 'auto',
+            contain: 'layout style',
+          }}
         >
           {home?.tagLine ??
             'I build thoughtful, reliable software—turning ideas into useful technology that makes life easier, because crafting elegant solutions is what I enjoy most.'}
         </p>
 
         <div className="mt-14 flex flex-wrap justify-center gap-8">
-          <PrimaryButton href="#projects" className={primaryButton}>
+          <PrimaryButton href="#projects" className={styles.primaryButton}>
             {home?.viewMyWorkLabel ?? 'View My Projects'}
             <ArrowDown className="h-5 w-5 -mt-0.5" strokeWidth={2} />
           </PrimaryButton>
@@ -77,7 +93,7 @@ const HomeSection: FC = () => {
             onClick={handleResumeClick}
             download
             aria-label={resumeAria}
-            className={secondaryButton}
+            className={styles.secondaryButton}
           >
             {resumeBtnText}
             <Download className="h-5 w-5 -mt-0.5" strokeWidth={2} />
@@ -90,9 +106,7 @@ const HomeSection: FC = () => {
           data-interactive
           className="h-8 w-8 cursor-pointer md:animate-bounce text-white"
           strokeWidth={2}
-          onClick={() => {
-            document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })
-          }}
+          onClick={handleScrollToAbout}
         />
       </div>
     </section>
