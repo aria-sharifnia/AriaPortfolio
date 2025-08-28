@@ -166,24 +166,24 @@ const SkillsSection: FC = () => {
     setThumb({ left: left - parentLeft, width: el.offsetWidth })
   }
 
-useEffect(() => {
-  const urls = new Set<string>()
-  for (const c of categories)
-    for (const it of c.items) {
-      if (it.icon) urls.add(it.icon)
-    }
-  
-  const promises = Array.from(urls).map(url => {
-    return new Promise<void>((resolve) => {
-      const img = new Image()
-      img.onload = () => resolve()
-      img.onerror = () => resolve()
-      img.src = url
+  useEffect(() => {
+    const urls = new Set<string>()
+    for (const c of categories)
+      for (const it of c.items) {
+        if (it.icon) urls.add(it.icon)
+      }
+
+    const promises = Array.from(urls).map((url) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image()
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+        img.src = url
+      })
     })
-  })
-  
-  Promise.all(promises).catch(() => {})
-}, [categories])
+
+    Promise.all(promises).catch(() => {})
+  }, [categories])
 
   useLayoutEffect(() => {
     recalcThumb()
