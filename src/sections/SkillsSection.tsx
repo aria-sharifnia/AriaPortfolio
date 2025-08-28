@@ -150,7 +150,7 @@ const SkillsSection: FC = () => {
   })
 
   const [ready, setReady] = useState(false)
-
+  const firstPaintRef = useRef(true)
   const tablistRef = useRef<HTMLDivElement | null>(null)
   const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [thumb, setThumb] = useState<{ left: number; width: number }>({ left: 0, width: 0 })
@@ -165,6 +165,17 @@ const SkillsSection: FC = () => {
     const { left: parentLeft } = list.getBoundingClientRect()
     setThumb({ left: left - parentLeft, width: el.offsetWidth })
   }
+
+  useEffect(() => {
+    const urls = new Set<string>()
+    for (const c of categories)
+      for (const it of c.items) {
+        if (it.icon) urls.add(it.icon)
+      }
+    urls.forEach((u) => {
+      fetch(u, { mode: 'cors' }).catch(() => {})
+    })
+  }, [categories])
 
   useLayoutEffect(() => {
     recalcThumb()
@@ -192,10 +203,9 @@ const SkillsSection: FC = () => {
   const reduceMotion = useMemo(prefersReducedMotion, [])
 
   useLayoutEffect(() => {
-    setReady(false)
     const box = boxRef.current
     if (!activeCat?.items?.length || !box) {
-      setReady(true)
+      if (firstPaintRef.current) setReady(true)
       return
     }
 
@@ -205,7 +215,7 @@ const SkillsSection: FC = () => {
     const H = box.clientHeight
 
     if (W <= 0 || H <= 0) {
-      setReady(true)
+      if (firstPaintRef.current) setReady(true)
       return
     }
 
@@ -264,7 +274,10 @@ const SkillsSection: FC = () => {
       el.style.transform = `translate3d(${b.x - b.size / 2}px, ${b.y - b.size / 2}px, 0)`
       el.style.setProperty('--fill', `${level01(b.level) * 100}%`)
     }
-    setReady(true)
+    if (firstPaintRef.current) {
+      setReady(true)
+      firstPaintRef.current = false
+    }
   }, [active, activeCat?.title, activeCat?.items?.length])
 
   useEffect(() => {
