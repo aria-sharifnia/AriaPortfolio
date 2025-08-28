@@ -9,7 +9,7 @@ import type { SocialMedia } from '../api/about'
 
 const baseButton = 'rounded-full px-10 py-4 text-base font-semibold shadow-md'
 const primaryButton = `${baseButton} bg-teal-400 text-slate-900`
-const secondaryButton = `${baseButton} border border-white bg-white/10 backdrop-blur-sm`
+const secondaryButton = `${baseButton} border border-white/40 bg-white/5 sm:bg-white/10 sm:backdrop-blur-sm`
 
 const HomeSection: FC = () => {
   const { data: home } = useHome()
@@ -45,22 +45,23 @@ const HomeSection: FC = () => {
           paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 64px)',
         }}
       >
-        <span className="mb-6 mt-2 flex h-20 w-20 items-center justify-center rounded-full border border-white bg-white/10 backdrop-blur-sm">
+        <span className="mb-6 mt-2 flex h-20 w-20 items-center justify-center rounded-full border border-white/40 bg-white/5 sm:bg-white/10 sm:backdrop-blur-sm">
           <Code2 className="h-10 w-10 text-white" strokeWidth={2} aria-hidden="true" />
         </span>
 
         <h1 className="text-center text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
           {home?.greeting ?? "Hi, I'm"}{' '}
-          <span className="text-teal-400">
-            {home?.highlightedName ?? 'Aria'}
-          </span>
+          <span className="text-teal-400">{home?.highlightedName ?? 'Aria'}</span>
         </h1>
 
         <p className="mt-6 text-center text-2xl font-semibold text-gray-200 sm:text-3xl">
           {home?.jobTitle ?? 'Computer Science Student & Full-Stack Developer'}
         </p>
 
-        <p className="mt-8 max-w-4xl text-center text-lg text-gray-300 sm:text-xl">
+        <p
+          className="mt-8 max-w-4xl text-center text-lg text-gray-300 sm:text-xl"
+          style={{ minHeight: '3.25rem' }}
+        >
           {home?.tagLine ??
             'I build thoughtful, reliable software—turning ideas into useful technology that makes life easier, because crafting elegant solutions is what I enjoy most.'}
         </p>
@@ -87,7 +88,7 @@ const HomeSection: FC = () => {
       <div className="absolute bottom-6 hidden w-full justify-center sm:flex md:bottom-8">
         <ArrowDown
           data-interactive
-          className="h-8 w-8 cursor-pointer animate-bounce text-white"
+          className="h-8 w-8 cursor-pointer md:animate-bounce text-white"
           strokeWidth={2}
           onClick={() => {
             document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })
