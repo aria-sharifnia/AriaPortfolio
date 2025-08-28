@@ -149,15 +149,16 @@ const SkillsSection: FC = () => {
     max: MAX_SPEED_BASE,
   })
 
-  const [ready, setReady] = useState(false)
-  const [iconsLoaded, setIconsLoaded] = useState(false)
-  const firstPaintRef = useRef(true)
+  // Always show content immediately - no waiting for icons
+  const [containerReady, setContainerReady] = useState(false)
   const tablistRef = useRef<HTMLDivElement | null>(null)
   const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
   const [thumb, setThumb] = useState<{ left: number; width: number }>({ left: 0, width: 0 })
+
   const setTabRef = (i: number) => (el: HTMLButtonElement | null) => {
     tabBtnRefs.current[i] = el
   }
+
   const recalcThumb = () => {
     const el = tabBtnRefs.current[active]
     const list = tablistRef.current
@@ -167,6 +168,7 @@ const SkillsSection: FC = () => {
     setThumb({ left: left - parentLeft, width: el.offsetWidth })
   }
 
+  // Preload icons in background without blocking render
   useEffect(() => {
     const urls = new Set<string>()
     for (const c of categories)
@@ -174,27 +176,13 @@ const SkillsSection: FC = () => {
         if (it.icon) urls.add(it.icon)
       }
 
-    if (urls.size === 0) {
-      setIconsLoaded(true)
-      return
-    }
+    if (urls.size === 0) return
 
-    const promises = Array.from(urls).map((url) => {
-      return new Promise<void>((resolve) => {
-        const img = new Image()
-        img.onload = () => resolve()
-        img.onerror = () => resolve()
-        img.src = url
-      })
+    // Preload asynchronously without blocking
+    Array.from(urls).forEach((url) => {
+      const img = new Image()
+      img.src = url
     })
-
-    Promise.all(promises)
-      .then(() => {
-        setIconsLoaded(true)
-      })
-      .catch(() => {
-        setIconsLoaded(true)
-      })
   }, [categories])
 
   useLayoutEffect(() => {
@@ -222,10 +210,11 @@ const SkillsSection: FC = () => {
 
   const reduceMotion = useMemo(prefersReducedMotion, [])
 
+  // Initialize layout immediately when component mounts and dimensions are available
   useLayoutEffect(() => {
     const box = boxRef.current
-    if (!activeCat?.items?.length || !box || !iconsLoaded) {
-      if (firstPaintRef.current && iconsLoaded) setReady(true)
+    if (!activeCat?.items?.length || !box) {
+      setContainerReady(true)
       return
     }
 
@@ -235,8 +224,11 @@ const SkillsSection: FC = () => {
     const H = box.clientHeight
 
     if (W <= 0 || H <= 0) {
-      if (firstPaintRef.current) setReady(true)
-      return
+      // Set a timeout to retry once the container has dimensions
+      const timer = setTimeout(() => {
+        setContainerReady(true)
+      }, 50)
+      return () => clearTimeout(timer)
     }
 
     const range = computeSizeRange(W, H)
@@ -248,10 +240,8 @@ const SkillsSection: FC = () => {
     if (!arr) {
       arr = activeCat.items.map((it, index) => {
         let size = sizeForLevel(it.level, range)
-
         const maxPossibleSize = Math.min(W, H)
         size = clamp(size, MIN_DIAMETER_HARD, maxPossibleSize)
-
         const r = size / 2
 
         const indexedRnd = mulberry32(seedFrom(key + index.toString()))
@@ -287,18 +277,18 @@ const SkillsSection: FC = () => {
 
     bubblesRef.current = arr
 
-    for (let i = 0; i < arr.length; i++) {
-      const el = nodesRef.current[i]
-      const b = arr[i]
-      if (!el) continue
-      el.style.transform = `translate3d(${b.x - b.size / 2}px, ${b.y - b.size / 2}px, 0)`
-      el.style.setProperty('--fill', `${level01(b.level) * 100}%`)
-    }
-    if (firstPaintRef.current) {
-      setReady(true)
-      firstPaintRef.current = false
-    }
-  }, [active, activeCat?.title, activeCat?.items?.length, iconsLoaded])
+    // Apply initial positions immediately
+    requestAnimationFrame(() => {
+      for (let i = 0; i < arr.length; i++) {
+        const el = nodesRef.current[i]
+        const b = arr[i]
+        if (!el) continue
+        el.style.transform = `translate3d(${b.x - b.size / 2}px, ${b.y - b.size / 2}px, 0)`
+        el.style.setProperty('--fill', `${level01(b.level) * 100}%`)
+      }
+      setContainerReady(true)
+    })
+  }, [active, activeCat?.title, activeCat?.items?.length])
 
   useEffect(() => {
     const box = boxRef.current
@@ -517,8 +507,10 @@ const SkillsSection: FC = () => {
       >
         <div
           ref={boxRef}
-          className="relative h-[340px] sm:h-[400px] md:h-[460px] lg:h-[520px] overflow-hidden rounded-3xl"
-          style={{ background: SKILLS_BG, visibility: ready && iconsLoaded ? 'visible' : 'hidden' }}
+          className={`relative h-[340px] sm:h-[400px] md:h-[460px] lg:h-[520px] overflow-hidden rounded-3xl transition-opacity duration-300 ${
+            containerReady ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{ background: SKILLS_BG }}
         >
           {(activeCat?.items ?? []).map((item, i) => {
             const diameter = sizeForLevel(item.level, sizeRange)
