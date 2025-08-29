@@ -280,7 +280,7 @@ const ProjectCard: React.FC<{
     >
       <div className={`h-1.5 w-full bg-gradient-to-r ${accent}`} />
       {project.cover?.url && (
-        <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0">
+        <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0 bg-slate-50">
           {recovering ? (
             <div className="absolute inset-0 bg-slate-200/40" />
           ) : (
@@ -293,13 +293,13 @@ const ProjectCard: React.FC<{
                   backfaceVisibility: 'hidden',
                 }}
               >
-                <img
-                  src={mediaUrl(project.cover?.url)}
-                  alt=""
-                  className="h-full w-full object-cover select-none pointer-events-none"
-                  loading="lazy"
-                  draggable={false}
-                />
+<img
+  src={`${mediaUrl(project.cover?.url)}?w=800&h=450&fit=crop&q=85`}
+  alt=""
+  className="h-full w-full object-cover select-none pointer-events-none"
+  loading="lazy"
+  draggable={false}
+/>
               </div>
               <div
                 className="absolute inset-0 grid place-items-center"
@@ -528,18 +528,18 @@ const ProjectModal: React.FC<ModalProps> = ({
             }}
           >
             <div className="p-6 md:p-6">
-              {project.cover?.url && (
-                <div
-                  className="relative w-full overflow-hidden rounded-2xl ring-1 ring-slate-200 h-[clamp(160px,28vh,240px)]"
-                  style={{ clipPath: 'inset(0 round 16px)' }}
-                >
-                  <img
-                    src={mediaUrl(project.cover?.url)}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                </div>
-              )}
+{project.cover?.url && (
+  <div
+    className="relative w-full overflow-hidden rounded-2xl ring-1 ring-slate-200 h-[clamp(200px,32vh,280px)] mb-4"
+    style={{ clipPath: 'inset(0 round 16px)' }}
+  >
+    <img
+      src={`${mediaUrl(project.cover?.url)}?w=600&h=400&fit=crop&q=90`}
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover"
+    />
+  </div>
+)}
 
               <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 sm:justify-between">
                 <h3 className="text-2xl font-bold leading-tight flex-1 min-w-0">{project.title}</h3>
