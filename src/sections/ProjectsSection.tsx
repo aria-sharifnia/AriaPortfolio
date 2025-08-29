@@ -10,7 +10,9 @@ import { useProjects } from '@/hooks/useProjects'
 
 export const fmtMonthYear = (iso?: string | null) => {
   if (!iso) return null
-  const d = new Date(iso)
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(iso)
+
   if (Number.isNaN(d.getTime())) return null
   return d.toLocaleString(undefined, { month: 'short', year: 'numeric' })
 }
@@ -32,7 +34,7 @@ const estimateReadMins = (sections: BlogSection[] | undefined, wpm = 225) => {
 }
 
 const PILL =
-  'inline-flex items-center h-6 px-3 rounded-full text-[13px] font-semibold leading-none ring-1 shadow-sm'
+  'inline-flex items-center h-6 px-3 rounded-full text-[13px] font-semibold leading-none ring-1 shadow-sm whitespace-nowrap shrink-0'
 
 const BasePill: React.FC<{ className?: string; children: React.ReactNode; ariaLabel?: string }> = ({
   className = '',
@@ -323,8 +325,8 @@ const ProjectCard: React.FC<{
           transition: `opacity ${REAPPEAR_MS}ms ${EASE} ${REAPPEAR_DELAY}ms`,
         }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-bold leading-tight">{project.title}</h3>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:justify-between">
+          <h3 className="text-lg font-bold leading-tight flex-1 min-w-0">{project.title}</h3>
           {renderDateRange(project.startDate, project.endDate) && (
             <DatePill>{renderDateRange(project.startDate, project.endDate)}</DatePill>
           )}
@@ -538,8 +540,8 @@ const ProjectModal: React.FC<ModalProps> = ({
                 </div>
               )}
 
-              <div className="mt-4 flex items-start justify-between gap-3">
-                <h3 className="text-2xl font-bold leading-tight">{project.title}</h3>
+              <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 sm:justify-between">
+                <h3 className="text-2xl font-bold leading-tight flex-1 min-w-0">{project.title}</h3>
                 {renderDateRange(project.startDate, project.endDate) && (
                   <span className="inline-flex h-7 items-center rounded-full bg-slate-100 px-3 text-sm font-semibold ring-1 ring-slate-200">
                     {renderDateRange(project.startDate, project.endDate)}
