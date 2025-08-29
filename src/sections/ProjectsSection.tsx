@@ -3,24 +3,25 @@ import Section from '../components/layout/Section'
 import { ChevronRight, ExternalLink, Github, X } from 'lucide-react'
 import TagPill from '@/components/common/TagPill'
 import PrimaryButton from '@/components/common/PrimaryButton/PrimaryButton'
-import type { TagKind } from '@/api/experience'
 import { sortTagBadges } from '@/utils/tags'
 import { TAG_STYLES } from '@/theme/tagStyles'
+import type { BlogSection, Project } from '@/api/project'
+import { useProjects } from '@/hooks/useProjects'
 
-type BlogSection = { heading?: string; body: string }
-type Project = {
-  id: string
-  title: string
-  summary: string
-  description?: string
-  period?: string
-  badges?: { label: string; type?: TagKind }[]
-  highlights?: string[]
-  demoUrl?: string
-  repoUrl?: string
-  cover?: string
-  blogTitle?: string
-  blog?: BlogSection[]
+export const fmtMonthYear = (iso?: string | null) => {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleString(undefined, { month: 'short', year: 'numeric' })
+}
+
+export const renderDateRange = (start?: string | null, end?: string | null) => {
+  const s = fmtMonthYear(start)
+  const e = fmtMonthYear(end)
+  if (s && e) return `${s}–${e}`
+  if (e) return e
+  if (s) return s
+  return null
 }
 
 const estimateReadMins = (sections: BlogSection[] | undefined, wpm = 225) => {
@@ -82,7 +83,7 @@ const TagRow: React.FC<{ badges?: Array<{ label?: string | null; type?: string |
       for (const b of sorted) {
         const span = document.createElement('span')
         span.className = `${PILL} ${TAG_STYLES[b.type].light}`
-        span.textContent = b.label
+        span.textContent = b.label ?? ''
         box.appendChild(span)
         pillEls.push(span)
       }
@@ -156,7 +157,7 @@ const TagRow: React.FC<{ badges?: Array<{ label?: string | null; type?: string |
     <div ref={ref} className="flex flex-wrap items-center gap-2 py-0.5">
       {sorted.map((b, i) => (
         <span key={`tag-${i}`} style={{ display: i < visibleCount ? 'inline-flex' : 'none' }}>
-          <TagPill label={b.label} type={b.type} />
+          <TagPill label={b.label ?? ''} type={b.type ?? 'other'} />
         </span>
       ))}
       {hidden > 0 && <TagPill label={`+${hidden}`} />}
@@ -165,87 +166,6 @@ const TagRow: React.FC<{ badges?: Array<{ label?: string | null; type?: string |
 }
 
 const ACCENT = 'from-teal-500 to-cyan-500'
-
-const PORTFOLIO_PROJECT: Project = {
-  id: 'portfolio',
-  title: 'Aria’s Portfolio (This site)',
-  period: '2025',
-  cover:
-    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop',
-  summary:
-    'A fast, content-driven React + TypeScript portfolio with Vite build, Strapi-ready backend, custom animations, and a clean tag system. Built from scratch to be fast, scalable, and expressive.',
-  description:
-    'A personal portfolio website built to showcase my career and journey as a developer. It brings together my skills, education, work experience, personal projects, testimonials, résumé, and social links in one place. Designed to be both professional and fast, it is a Vite + React application styled with Tailwind CSS, hosted on Vercel with a custom domain, and powered by a Strapi Cloud CMS backend. An efficient caching strategy ensures that content updates are fresh while keeping API calls minimal, making the site smooth and scalable across all devices.',
-  badges: [
-    { label: 'React', type: 'frontend' },
-    { label: 'TypeScript', type: 'frontend' },
-    { label: 'Vite', type: 'tools' },
-    { label: 'Tailwind CSS', type: 'frontend' },
-    { label: 'Accessibility', type: 'tools' },
-    { label: 'FLIP animation', type: 'other' },
-    { label: 'MDX/Strapi-ready', type: 'tools' },
-    { label: 'Lucide Icons', type: 'tools' },
-  ],
-  highlights: [
-    'Iterative design process inspired by UX Pilot, evolved section by section',
-    'Custom cursor built after many iterations to balance uniqueness & usability',
-    'Skills “bubbles” visualization with dynamic sizing & animations',
-    'Shared-element modal (card → dialog) using FLIP + clip-path',
-    'Caching strategy with Strapi manifest check: only changed sections re-fetch',
-    'Responsive across devices with adjusted layouts for small screens',
-    'Near-perfect Lighthouse scores (performance, accessibility, SEO)',
-    'Hosted on Vercel with Strapi Cloud backend & Vercel Analytics',
-  ],
-  demoUrl: '/',
-  repoUrl: '#',
-  blogTitle: 'Designing a portfolio that feels fast, focused, and future-proof',
-  blog: [
-    {
-      heading: 'Starting Out',
-      body: 'Before writing a line of code, I researched how other Computer Science portfolios were built. I also used UX Pilot as a design springboard. It gave me a solid structure to start from, but as I iterated the site evolved into something much more personal — new colors, layouts, and ideas emerged section by section.',
-    },
-    {
-      heading: 'Design Iterations',
-      body: 'The design was never static. My early versions looked very different: colors felt mismatched, typography didn’t feel professional, and the layout was too rigid. As I built each section, I experimented and let the design drift. Over time, this iterative process created a more cohesive and polished look than I originally planned.',
-    },
-    {
-      heading: 'Tools & Tech Choices',
-      body: 'I chose React because I was already comfortable with it and it let me build composable primitives like Section and Pill. Vite became my build tool because of its blazing-fast HMR and lean production bundles, which helped me keep the feedback loop short. Tailwind CSS was new to me at the time — the learning curve was slow at first, but I quickly saw why it’s widely adopted in the industry. It enforces consistent design tokens, makes responsive design natural, and speeds up iteration.',
-    },
-    {
-      heading: 'Custom Cursor',
-      body: 'One of the most experimental parts of the site was the custom cursor. I went through many iterations to strike the right balance: unique and noticeable, but not distracting. Early versions were laggy and felt gimmicky, but after experimenting with different rendering strategies I finally achieved a smooth, performant result.',
-    },
-    {
-      heading: 'Skills Visualization',
-      body: 'For the skills section, I wanted something more than a list of technologies. The bubble system shows my stronger skills as larger and fuller circles, with animation to make it feel alive. At first the animations were glitchy and the colors clashed, but I kept refining until the motion felt natural and the palette matched the rest of the site. I also decided that every tab should persist in the DOM so switching feels like peeking into another environment instead of loading a new one.',
-    },
-    {
-      heading: 'Experiences & Projects',
-      body: 'The experiences timeline was by far the hardest section to design. I wanted it to be clear, engaging, and easy to scan without overwhelming the user. It went through multiple redesigns before I found a structure I was happy with. For projects, I built a shared-element modal using FLIP animations so cards morph smoothly into detailed views. This created a strong storytelling flow: quick overviews in the grid, and deeper dives inside the modal.',
-    },
-    {
-      heading: 'Backend & Hosting',
-      body: 'I hosted the frontend on Vercel for simplicity, speed, and scalability. For the backend, I used Strapi Cloud for the first time. This taught me how to model content types, secure API calls, and integrate a headless CMS into a React app. To keep things efficient, I built a caching layer: the site first checks a manifest file — if nothing has changed, no new API calls are made; if only one section has changed, only that section is re-fetched. This keeps the experience fast without losing freshness.',
-    },
-    {
-      heading: 'Performance & SEO',
-      body: 'Performance was a top priority. I tested the site with Lighthouse and achieved near-perfect scores for performance, accessibility, and SEO. For SEO, I added a sitemap, OG images for social sharing, and registered the site with Google Search Console. I also integrated Vercel Analytics to monitor speed and real-world usage. Responsiveness was carefully tuned: some components scale down naturally, while others change design entirely to work better on smaller screens.',
-    },
-    {
-      heading: 'Challenges',
-      body: 'Not everything went smoothly. The custom cursor was laggy for weeks until I found the right rendering approach. The skills bubbles kept overlapping in awkward ways, which required tuning the physics and animation pacing. And the experiences timeline took the longest to design — I had to balance information density with readability. Each of these challenges forced me to dig deeper into performance, animation, and UX best practices.',
-    },
-    {
-      heading: 'What I Learned',
-      body: 'This project reinforced the value of iteration: my final portfolio looks nothing like my first sketches, but it represents me much better. I gained hands-on experience with Tailwind CSS and Strapi Cloud, and I deepened my understanding of performance as part of design. Most importantly, I learned that personal projects are living experiments — every new idea is a chance to try something, learn, and improve.',
-    },
-    {
-      heading: 'Future Plans',
-      body: 'I plan to keep expanding this site as both a portfolio and a blog. Every new project I build will come with its own blog entry describing the process and lessons learned. I also want to add more technical deep dives, experiment with visual storytelling, refine SEO further, and improve accessibility even more. The site will evolve with me, both as a developer and a designer.',
-    },
-  ],
-}
 
 type TabKey = 'overview' | 'blog'
 const TabButton = ({
@@ -356,7 +276,7 @@ const ProjectCard: React.FC<{
       style={{ contain: 'paint' }}
     >
       <div className={`h-1.5 w-full bg-gradient-to-r ${accent}`} />
-      {project.cover && (
+      {project.cover?.url && (
         <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0">
           {recovering ? (
             <div className="absolute inset-0 bg-slate-200/40" />
@@ -371,7 +291,7 @@ const ProjectCard: React.FC<{
                 }}
               >
                 <img
-                  src={project.cover}
+                  src={project.cover.url}
                   alt=""
                   className="h-full w-full object-cover select-none pointer-events-none"
                   loading="lazy"
@@ -405,10 +325,12 @@ const ProjectCard: React.FC<{
       >
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-bold leading-tight">{project.title}</h3>
-          {project.period && <DatePill>{project.period}</DatePill>}
+          {renderDateRange(project.startDate, project.endDate) && (
+            <DatePill>{renderDateRange(project.startDate, project.endDate)}</DatePill>
+          )}
         </div>
 
-        <p className="mt-2 text-slate-600 line-clamp-3">{project.description ?? project.summary}</p>
+        <p className="mt-2 text-slate-600 line-clamp-3">{project.description}</p>
 
         {!!project.badges?.length && (
           <div>
@@ -602,15 +524,14 @@ const ProjectModal: React.FC<ModalProps> = ({
               scrollbarGutter: 'stable both-edges',
             }}
           >
-            {/* Left rail */}
             <div className="p-6 md:p-6">
-              {project.cover && (
+              {project.cover?.url && (
                 <div
                   className="relative w-full overflow-hidden rounded-2xl ring-1 ring-slate-200 h-[clamp(160px,28vh,240px)]"
                   style={{ clipPath: 'inset(0 round 16px)' }}
                 >
                   <img
-                    src={project.cover}
+                    src={project.cover.url}
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
                   />
@@ -619,9 +540,9 @@ const ProjectModal: React.FC<ModalProps> = ({
 
               <div className="mt-4 flex items-start justify-between gap-3">
                 <h3 className="text-2xl font-bold leading-tight">{project.title}</h3>
-                {project.period && (
+                {renderDateRange(project.startDate, project.endDate) && (
                   <span className="inline-flex h-7 items-center rounded-full bg-slate-100 px-3 text-sm font-semibold ring-1 ring-slate-200">
-                    {project.period}
+                    {renderDateRange(project.startDate, project.endDate)}
                   </span>
                 )}
               </div>
@@ -658,7 +579,6 @@ const ProjectModal: React.FC<ModalProps> = ({
               )}
             </div>
 
-            {/* Tabs row */}
             <div className="px-6 md:px-6 md:col-span-2">
               <div className="flex items-center gap-2">
                 <TabButton active={tab === 'overview'} onClick={() => setTab('overview')}>
@@ -670,12 +590,11 @@ const ProjectModal: React.FC<ModalProps> = ({
               </div>
             </div>
 
-            {/* Right content */}
             <div className="p-6 md:p-6">
               {tab === 'overview' && (
                 <div className="space-y-5">
                   <section className="space-y-3">
-                    <p className="text-slate-700">{project.description ?? project.summary}</p>
+                    <p className="text-slate-700">{project.description}</p>
 
                     {sortedBadges.length > 0 && (
                       <div className="flex flex-wrap gap-2">
@@ -746,6 +665,12 @@ const ProjectsSection: React.FC = () => {
   const [recoveringCardId, setRecoveringCardId] = useState<string | null>(null)
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
+  const { data } = useProjects()
+  const items = data?.items ?? []
+  const title = data?.title ?? 'Projects'
+  const subtitle =
+    data?.subtitle ?? 'Showcasing key projects that demonstrate design, development, and innovation'
+
   const setCardRef = (id: string) => (el: HTMLDivElement | null) => {
     cardRefs.current[id] = el
   }
@@ -774,18 +699,11 @@ const ProjectsSection: React.FC = () => {
     return el ? el.getBoundingClientRect() : null
   }
 
-  const data = useMemo(() => [PORTFOLIO_PROJECT], [])
-
   return (
-    <Section
-      id="projects"
-      title="Projects"
-      description="Showcasing key projects that demonstrate design, development, and innovation"
-      background="gray"
-    >
+    <Section id="projects" title={title} description={subtitle} background="gray">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-2">
-          {data.map((p) => (
+          {items.map((p) => (
             <ProjectCard
               key={p.id}
               project={p}
