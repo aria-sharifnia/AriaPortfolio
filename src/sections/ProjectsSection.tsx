@@ -7,6 +7,7 @@ import { sortTagBadges } from '@/utils/tags'
 import { TAG_STYLES } from '@/theme/tagStyles'
 import type { BlogSection, Project } from '@/api/project'
 import { useProjects } from '@/hooks/useProjects'
+import { mediaUrl } from '@/api/strapi'
 
 export const fmtMonthYear = (iso?: string | null) => {
   if (!iso) return null
@@ -293,7 +294,7 @@ const ProjectCard: React.FC<{
                 }}
               >
                 <img
-                  src={project.cover.url}
+                  src={mediaUrl(project.cover?.url)}
                   alt=""
                   className="h-full w-full object-cover select-none pointer-events-none"
                   loading="lazy"
@@ -533,7 +534,7 @@ const ProjectModal: React.FC<ModalProps> = ({
                   style={{ clipPath: 'inset(0 round 16px)' }}
                 >
                   <img
-                    src={project.cover.url}
+                    src={mediaUrl(project.cover?.url)}
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
                   />
