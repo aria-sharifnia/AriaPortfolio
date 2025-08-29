@@ -296,7 +296,7 @@ const ProjectCard: React.FC<{
 <img
   src={`${mediaUrl(project.cover?.url)}?w=800&h=450&fit=crop&q=85`}
   alt=""
-  className="h-full w-full object-cover select-none pointer-events-none"
+  className="h-full w-full object-cover object-top select-none pointer-events-none"
   loading="lazy"
   draggable={false}
 />
@@ -533,11 +533,11 @@ const ProjectModal: React.FC<ModalProps> = ({
     className="relative w-full overflow-hidden rounded-2xl ring-1 ring-slate-200 h-[clamp(200px,32vh,280px)] mb-4"
     style={{ clipPath: 'inset(0 round 16px)' }}
   >
-    <img
-      src={`${mediaUrl(project.cover?.url)}?w=600&h=400&fit=crop&q=90`}
-      alt=""
-      className="absolute inset-0 h-full w-full object-cover"
-    />
+<img
+  src={`${mediaUrl(project.cover?.url)}?w=800&h=600&fit=crop&q=90`}
+  alt=""
+  className="absolute inset-0 h-full w-full object-cover object-top"
+/>
   </div>
 )}
 
