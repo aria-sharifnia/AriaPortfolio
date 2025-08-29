@@ -35,7 +35,7 @@ type StrapiProjectItem = {
   id: number
   title: string
   description: string
-  cover?: Media[] | null
+  cover?: Media | Media[] | null
   startDate?: string | null
   endDate?: string | null
   demoUrl?: string | null
@@ -54,7 +54,10 @@ type ProjectsResponse = {
   }
 }
 
-const firstMedia = (arr?: Media[] | null): Media | null => (arr && arr.length > 0 ? arr[0] : null)
+const firstMedia = (input?: Media | Media[] | null): Media | null => {
+  if (!input) return null
+  return Array.isArray(input) ? (input.length > 0 ? input[0] : null) : input
+}
 
 const mapBadge = (b: StrapiBadge) => ({
   label: b.label,
