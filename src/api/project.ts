@@ -1,4 +1,4 @@
-import { get } from './strapi'
+import { get, mediaUrl as toAbsUrl } from './strapi'
 
 export type Media = { url?: string | null }
 
@@ -64,11 +64,29 @@ const mapBadge = (b: StrapiBadge) => ({
   type: b.type ?? 'other',
 })
 
+const pickBestUrl = (m?: any | null): string | null => {
+  if (!m) return null
+  const candidates = [
+    m?.formats?.large?.url,
+    m?.formats?.medium?.url,
+    m?.formats?.small?.url,
+    m?.url,
+  ]
+  const u = candidates.find((x) => typeof x === 'string' && x.length > 0) as
+    | string
+    | undefined
+  return u ? toAbsUrl(u) ?? null : null
+}
+
 const mapProject = (p: StrapiProjectItem): Project => ({
   id: String(p.id),
   title: p.title,
   description: p.description,
-  cover: firstMedia(p.cover),
+  cover: (() => {
+    const m = firstMedia(p.cover)
+    const url = pickBestUrl(m)
+    return url ? { url } : null
+  })(),
   startDate: p.startDate ?? null,
   endDate: p.endDate ?? null,
   demoUrl: p.demoUrl ?? undefined,
