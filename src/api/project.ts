@@ -3,7 +3,7 @@ import type { TagKind } from './experience'
 import type { Media } from './about'
 
 export type BlogSection = {
-  heading?: string;
+  heading?: string
   body: string
 }
 
