@@ -1,4 +1,4 @@
-import { get } from './strapi'
+import { get, mediaUrl } from './strapi'
 import type { TagKind } from './experience'
 import type { Media } from './about'
 
@@ -8,7 +8,7 @@ export type Project = {
   id: string
   title: string
   description: string
-  cover?: Media | null
+  coverUrl?: string | null  // Changed from cover to coverUrl
   startDate?: string | null
   endDate?: string | null
   badges?: { label: string; type?: TagKind }[]
@@ -57,24 +57,38 @@ const mapBadge = (b: StrapiBadge) => ({
   type: (b.type as TagKind | undefined) ?? 'other',
 })
 
-const mapProject = (p: StrapiProjectItem): Project => ({
-  id: String(p.id),
-  title: p.title,
-  description: p.description,
-  cover: p.cover ?? null,
-  startDate: p.startDate ?? null,
-  endDate: p.endDate ?? null,
-  demoUrl: p.demoUrl ?? undefined,
-  repoUrl: p.repoUrl ?? undefined,
-  badges: (p.badges ?? []).map(mapBadge),
-  highlights: (p.highlights ?? []).map((h) => h.text),
-  blogTitle: p.blogTitle ?? undefined,
-  blog: (p.blogSection ?? []).map((s) => ({
-    heading: s.heading ?? undefined,
-    body: s.body,
-  })),
-})
+const mapProject = (p: StrapiProjectItem): Project => {
+  // Debug logging to see what we're getting
+  console.log('Raw project data:', {
+    id: p.id,
+    title: p.title,
+    cover: p.cover
+  })
+  
+  // Process cover URL like testimonials do
+  const coverUrl = mediaUrl(p.cover?.url ?? undefined) ?? null
+  console.log('Processed cover URL:', coverUrl)
+  
+  return {
+    id: String(p.id),
+    title: p.title,
+    description: p.description,
+    coverUrl, // Use processed URL
+    startDate: p.startDate ?? null,
+    endDate: p.endDate ?? null,
+    demoUrl: p.demoUrl ?? undefined,
+    repoUrl: p.repoUrl ?? undefined,
+    badges: (p.badges ?? []).map(mapBadge),
+    highlights: (p.highlights ?? []).map((h) => h.text),
+    blogTitle: p.blogTitle ?? undefined,
+    blog: (p.blogSection ?? []).map((s) => ({
+      heading: s.heading ?? undefined,
+      body: s.body,
+    })),
+  }
+}
 
+// Use the exact same populate pattern as testimonials
 const POPULATE =
   '?populate[projects][populate][0]=badges' +
   '&populate[projects][populate][1]=highlights' +
@@ -83,11 +97,12 @@ const POPULATE =
 
 export async function fetchProjects(): Promise<ProjectsContent> {
   const res = await get<ProjectsResponse>(`/api/project${POPULATE}`)
-  console.log('Projects API response:', JSON.stringify(res, null, 2)) // Add this line
+  console.log('Full API response:', JSON.stringify(res, null, 2))
   const d = res.data
-  return {
+  const result = {
     title: d.heading,
     subtitle: d.description ?? null,
     items: (d.projects ?? []).map(mapProject),
   }
+  return result
 }
