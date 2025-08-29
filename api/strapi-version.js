@@ -91,13 +91,14 @@ export default async function handler(req, res) {
       }
     }
 
-    const [home, about, contact, skills, experience, testimonials] = await Promise.all([
+    const [home, about, contact, skills, experience, testimonials, project] = await Promise.all([
       getUpdatedAt('home'),
       getUpdatedAt('about'),
       getUpdatedAt('contact'),
       getUpdatedAt('skill'),
       getUpdatedAt('experience'),
       getUpdatedAt('testimonial'),
+      getUpdatedAt('project'),
     ])
 
     const current = await getManifest()
@@ -111,6 +112,7 @@ export default async function handler(req, res) {
       skillsVersion: skills ?? currentFields.skillsVersion ?? null,
       experienceVersion: experience ?? currentFields.experienceVersion ?? null,
       testimonialsVersion: testimonials ?? currentFields.testimonialsVersion ?? null,
+      projectVersion: project ?? currentFields.projectVersion ?? null,
     }
 
     const unchanged =
@@ -119,7 +121,8 @@ export default async function handler(req, res) {
       fields.contactVersion === currentFields.contactVersion &&
       fields.skillsVersion === currentFields.skillsVersion &&
       fields.experienceVersion === currentFields.experienceVersion &&
-      fields.testimonialsVersion === currentFields.testimonialsVersion
+      fields.testimonialsVersion === currentFields.testimonialsVersion &&
+      fields.projectVersion === currentFields.projectVersion
 
     if (unchanged) {
       return res.status(200).json({ ok: true, unchanged: true })
@@ -132,6 +135,7 @@ export default async function handler(req, res) {
       fields.skillsVersion,
       fields.experienceVersion,
       fields.testimonialsVersion,
+      fields.projectVersion,
     ].join('|')
     const globalVersion = `${hash(concat)}-${new Date().toISOString()}`
 
