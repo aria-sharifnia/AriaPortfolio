@@ -7,6 +7,7 @@ import { sortTagBadges } from '@/utils/tags'
 import { TAG_STYLES } from '@/theme/tagStyles'
 import type { BlogSection, Project } from '@/api/project'
 import { useProjects } from '@/hooks/useProjects'
+import { mediaUrl } from '@/api/strapi'
 
 export const fmtMonthYear = (iso?: string | null) => {
   if (!iso) return null
@@ -278,7 +279,7 @@ const ProjectCard: React.FC<{
       style={{ contain: 'paint' }}
     >
       <div className={`h-1.5 w-full bg-gradient-to-r ${accent}`} />
-      {project.coverUrl && (
+      {project.cover?.url && (
         <div className="relative aspect-[16/9] w-full overflow-hidden shrink-0">
           {recovering ? (
             <div className="absolute inset-0 bg-slate-200/40" />
@@ -293,7 +294,7 @@ const ProjectCard: React.FC<{
                 }}
               >
                 <img
-                  src={project.coverUrl}
+                  src={mediaUrl(project.cover?.url)}
                   alt=""
                   className="h-full w-full object-cover select-none pointer-events-none"
                   loading="lazy"
@@ -527,13 +528,13 @@ const ProjectModal: React.FC<ModalProps> = ({
             }}
           >
             <div className="p-6 md:p-6">
-              {project.coverUrl && (
+              {project.cover?.url && (
                 <div
                   className="relative w-full overflow-hidden rounded-2xl ring-1 ring-slate-200 h-[clamp(160px,28vh,240px)]"
                   style={{ clipPath: 'inset(0 round 16px)' }}
                 >
                   <img
-                    src={project.coverUrl}
+                    src={mediaUrl(project.cover?.url)}
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
                   />
