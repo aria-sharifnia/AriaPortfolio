@@ -149,7 +149,6 @@ const SkillsSection: FC = () => {
     max: MAX_SPEED_BASE,
   })
 
-  // Always show content immediately - no waiting for icons
   const [containerReady, setContainerReady] = useState(false)
   const tablistRef = useRef<HTMLDivElement | null>(null)
   const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -168,7 +167,6 @@ const SkillsSection: FC = () => {
     setThumb({ left: left - parentLeft, width: el.offsetWidth })
   }
 
-  // Preload icons in background without blocking render
   useEffect(() => {
     const urls = new Set<string>()
     for (const c of categories)
@@ -178,7 +176,6 @@ const SkillsSection: FC = () => {
 
     if (urls.size === 0) return
 
-    // Preload asynchronously without blocking
     Array.from(urls).forEach((url) => {
       const img = new Image()
       img.src = url
@@ -210,7 +207,6 @@ const SkillsSection: FC = () => {
 
   const reduceMotion = useMemo(prefersReducedMotion, [])
 
-  // Initialize layout immediately when component mounts and dimensions are available
   useLayoutEffect(() => {
     const box = boxRef.current
     if (!activeCat?.items?.length || !box) {
@@ -224,7 +220,6 @@ const SkillsSection: FC = () => {
     const H = box.clientHeight
 
     if (W <= 0 || H <= 0) {
-      // Set a timeout to retry once the container has dimensions
       const timer = setTimeout(() => {
         setContainerReady(true)
       }, 50)
@@ -276,8 +271,6 @@ const SkillsSection: FC = () => {
     }
 
     bubblesRef.current = arr
-
-    // Apply initial positions immediately
     requestAnimationFrame(() => {
       for (let i = 0; i < arr.length; i++) {
         const el = nodesRef.current[i]
