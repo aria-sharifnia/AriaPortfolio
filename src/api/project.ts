@@ -76,13 +76,15 @@ const mapProject = (p: StrapiProjectItem): Project => ({
 })
 
 export async function fetchProjects(): Promise<ProjectsContent> {
-  const res = await get<ProjectsResponse>(
-    '/api/project' +
-      '?populate[projects][populate][0]=cover' +
-      '&populate[projects][populate][1]=badges' +
-      '&populate[projects][populate][2]=highlights' +
-      '&populate[projects][populate][3]=blogSection'
-  )
+  const url =
+    '/api/project?' +
+    'populate[projects][populate][cover]=true&' +
+    'populate[projects][populate][badges]=true&' +
+    'populate[projects][populate][highlights]=true&' +
+    'populate[projects][populate][blogSection]=true'
+
+  const res = await get<ProjectsResponse>(url)
+
   const d = res.data
   return {
     title: d.heading,
