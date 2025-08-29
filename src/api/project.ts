@@ -1,10 +1,8 @@
-import { get, mediaUrl as toAbsUrl } from './strapi'
-
-export type Media = { url?: string | null }
+import { get } from './strapi'
+import type { TagKind } from './experience'
+import type { Media } from './about'
 
 export type BlogSection = { heading?: string; body: string }
-
-export type TagKind = 'frontend' | 'backend' | 'tools' | 'other'
 
 export type Project = {
   id: string
@@ -13,7 +11,7 @@ export type Project = {
   cover?: Media | null
   startDate?: string | null
   endDate?: string | null
-  badges?: { label: string; type?: TagKind | string | null }[]
+  badges?: { label: string; type?: TagKind }[]
   highlights?: string[]
   demoUrl?: string
   repoUrl?: string
@@ -35,7 +33,7 @@ type StrapiProjectItem = {
   id: number
   title: string
   description: string
-  cover?: Media | Media[] | null
+  cover?: Media | null
   startDate?: string | null
   endDate?: string | null
   demoUrl?: string | null
@@ -54,39 +52,16 @@ type ProjectsResponse = {
   }
 }
 
-const firstMedia = (input?: Media | Media[] | null): Media | null => {
-  if (!input) return null
-  return Array.isArray(input) ? (input.length > 0 ? input[0] : null) : input
-}
-
 const mapBadge = (b: StrapiBadge) => ({
   label: b.label,
-  type: b.type ?? 'other',
+  type: (b.type as TagKind | undefined) ?? 'other',
 })
-
-const pickBestUrl = (m?: any | null): string | null => {
-  if (!m) return null
-  const candidates = [
-    m?.formats?.large?.url,
-    m?.formats?.medium?.url,
-    m?.formats?.small?.url,
-    m?.url,
-  ]
-  const u = candidates.find((x) => typeof x === 'string' && x.length > 0) as
-    | string
-    | undefined
-  return u ? toAbsUrl(u) ?? null : null
-}
 
 const mapProject = (p: StrapiProjectItem): Project => ({
   id: String(p.id),
   title: p.title,
   description: p.description,
-  cover: (() => {
-    const m = firstMedia(p.cover)
-    const url = pickBestUrl(m)
-    return url ? { url } : null
-  })(),
+  cover: p.cover ?? null,
   startDate: p.startDate ?? null,
   endDate: p.endDate ?? null,
   demoUrl: p.demoUrl ?? undefined,
@@ -100,17 +75,14 @@ const mapProject = (p: StrapiProjectItem): Project => ({
   })),
 })
 
-export async function fetchProjects(): Promise<ProjectsContent> {
-  const res = await get<ProjectsResponse>(
-    [
-      '/api/project',
-      'populate[projects][populate][cover]=true',
-      'populate[projects][populate][badges]=true',
-      'populate[projects][populate][highlights]=true',
-      'populate[projects][populate][blogSection]=true',
-    ].join('?')
-  )
+const POPULATE =
+  '?populate[projects][populate][cover]=*' +
+  '&populate[projects][populate][badges]=*' +
+  '&populate[projects][populate][highlights]=*' +
+  '&populate[projects][populate][blogSection]=*'
 
+export async function fetchProjects(): Promise<ProjectsContent> {
+  const res = await get<ProjectsResponse>(`/api/project${POPULATE}`)
   const d = res.data
   return {
     title: d.heading,
