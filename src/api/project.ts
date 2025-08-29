@@ -1,8 +1,10 @@
 import { get } from './strapi'
-import type { TagKind } from './experience'
-import type { Media } from './about'
+
+export type Media = { url?: string | null }
 
 export type BlogSection = { heading?: string; body: string }
+
+export type TagKind = 'frontend' | 'backend' | 'tools' | 'other'
 
 export type Project = {
   id: string
@@ -11,7 +13,7 @@ export type Project = {
   cover?: Media | null
   startDate?: string | null
   endDate?: string | null
-  badges?: { label: string; type?: TagKind }[]
+  badges?: { label: string; type?: TagKind | string | null }[]
   highlights?: string[]
   demoUrl?: string
   repoUrl?: string
@@ -33,7 +35,7 @@ type StrapiProjectItem = {
   id: number
   title: string
   description: string
-  cover?: Media | null
+  cover?: Media[] | null
   startDate?: string | null
   endDate?: string | null
   demoUrl?: string | null
@@ -52,16 +54,18 @@ type ProjectsResponse = {
   }
 }
 
+const firstMedia = (arr?: Media[] | null): Media | null => (arr && arr.length > 0 ? arr[0] : null)
+
 const mapBadge = (b: StrapiBadge) => ({
   label: b.label,
-  type: (b.type as TagKind | undefined) ?? 'other',
+  type: b.type ?? 'other',
 })
 
 const mapProject = (p: StrapiProjectItem): Project => ({
   id: String(p.id),
   title: p.title,
   description: p.description,
-  cover: p.cover ?? null,
+  cover: firstMedia(p.cover),
   startDate: p.startDate ?? null,
   endDate: p.endDate ?? null,
   demoUrl: p.demoUrl ?? undefined,
@@ -76,14 +80,15 @@ const mapProject = (p: StrapiProjectItem): Project => ({
 })
 
 export async function fetchProjects(): Promise<ProjectsContent> {
-  const url =
-    '/api/project?' +
-    'populate[projects][populate][cover]=true&' +
-    'populate[projects][populate][badges]=true&' +
-    'populate[projects][populate][highlights]=true&' +
-    'populate[projects][populate][blogSection]=true'
-
-  const res = await get<ProjectsResponse>(url)
+  const res = await get<ProjectsResponse>(
+    [
+      '/api/project',
+      'populate[projects][populate][cover]=true',
+      'populate[projects][populate][badges]=true',
+      'populate[projects][populate][highlights]=true',
+      'populate[projects][populate][blogSection]=true',
+    ].join('?')
+  )
 
   const d = res.data
   return {
