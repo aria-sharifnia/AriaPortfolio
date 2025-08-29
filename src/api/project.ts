@@ -2,7 +2,10 @@ import { get } from './strapi'
 import type { TagKind } from './experience'
 import type { Media } from './about'
 
-export type BlogSection = { heading?: string; body: string }
+export type BlogSection = {
+  heading?: string;
+  body: string
+}
 
 export type Project = {
   id: string
@@ -33,7 +36,7 @@ type StrapiProjectItem = {
   id: number
   title: string
   description: string
-  cover?: Media | null
+  cover?: Media[] | null
   startDate?: string | null
   endDate?: string | null
   demoUrl?: string | null
@@ -61,7 +64,7 @@ const mapProject = (p: StrapiProjectItem): Project => ({
   id: String(p.id),
   title: p.title,
   description: p.description,
-  cover: p.cover ?? null,
+  cover: p.cover?.[0] ?? null,
   startDate: p.startDate ?? null,
   endDate: p.endDate ?? null,
   demoUrl: p.demoUrl ?? undefined,
