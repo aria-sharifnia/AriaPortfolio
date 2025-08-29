@@ -8,7 +8,7 @@ export type Project = {
   id: string
   title: string
   description: string
-  coverUrl?: string | null  // Changed from cover to coverUrl
+  coverUrl?: string | null
   startDate?: string | null
   endDate?: string | null
   badges?: { label: string; type?: TagKind }[]
@@ -58,22 +58,20 @@ const mapBadge = (b: StrapiBadge) => ({
 })
 
 const mapProject = (p: StrapiProjectItem): Project => {
-  // Debug logging to see what we're getting
   console.log('Raw project data:', {
     id: p.id,
     title: p.title,
     cover: p.cover
   })
   
-  // Process cover URL like testimonials do
   const coverUrl = mediaUrl(p.cover?.url ?? undefined) ?? null
-  console.log('Processed cover URL:', coverUrl)
+  console.log(`Cover URL for "${p.title}":`, coverUrl)
   
   return {
     id: String(p.id),
     title: p.title,
     description: p.description,
-    coverUrl, // Use processed URL
+    coverUrl,
     startDate: p.startDate ?? null,
     endDate: p.endDate ?? null,
     demoUrl: p.demoUrl ?? undefined,
@@ -88,21 +86,22 @@ const mapProject = (p: StrapiProjectItem): Project => {
   }
 }
 
-// Use the exact same populate pattern as testimonials
-const POPULATE =
-  '?populate[projects][populate][0]=badges' +
-  '&populate[projects][populate][1]=highlights' +
-  '&populate[projects][populate][2]=blogSection' +
-  '&populate[projects][populate][3]=cover'
+const POPULATE = '?populate=*'
 
 export async function fetchProjects(): Promise<ProjectsContent> {
+  console.log('Fetching projects with URL:', `/api/project${POPULATE}`)
+  
   const res = await get<ProjectsResponse>(`/api/project${POPULATE}`)
-  console.log('Full API response:', JSON.stringify(res, null, 2))
+  
+  console.log('=== RAW STRAPI RESPONSE ===')
+  console.log(JSON.stringify(res, null, 2))
+  
   const d = res.data
   const result = {
     title: d.heading,
     subtitle: d.description ?? null,
     items: (d.projects ?? []).map(mapProject),
   }
+  
   return result
 }
