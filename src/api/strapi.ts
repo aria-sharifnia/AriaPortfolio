@@ -1,4 +1,7 @@
-export const STRAPI_BASE = (import.meta.env.VITE_STRAPI_URL as string | undefined)?.replace(/\/$/, '')
+export const STRAPI_BASE = (import.meta.env.VITE_STRAPI_URL as string | undefined)?.replace(
+  /\/$/,
+  ''
+)
 
 if (!STRAPI_BASE && import.meta.env.PROD) {
   throw new Error('VITE_STRAPI_URL is missing in production build')
