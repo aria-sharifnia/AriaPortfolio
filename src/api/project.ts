@@ -35,7 +35,7 @@ type StrapiHighlight = { text: string }
 type StrapiBlogSection = {
   heading?: string | null
   body: string
-  reportPdf?: Media[] | null
+  reportPdf?: Media | null
   reportLinkText?: string | null
 }
 
@@ -82,7 +82,7 @@ const mapProject = (p: StrapiProjectItem): Project => ({
   blog: (p.blogSection ?? []).map((s) => ({
     heading: s.heading ?? undefined,
     body: s.body,
-    reportPdf: s.reportPdf?.[0] ?? null,
+    reportPdf: s.reportPdf ?? null,
     reportLinkText: s.reportLinkText ?? null,
   })),
 })
@@ -94,7 +94,7 @@ export async function fetchProjects(): Promise<ProjectsContent> {
       '&populate[projects][populate][1]=badges' +
       '&populate[projects][populate][2]=highlights' +
       '&populate[projects][populate][3]=blogSection' +
-      '&populate[projects][populate][4]=blogSection.reportPdf'
+      '&populate[projects][populate][blogSection][populate][reportPdf]=true'
   )
   const d = res.data
   return {
