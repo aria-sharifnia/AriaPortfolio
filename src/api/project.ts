@@ -93,8 +93,7 @@ export async function fetchProjects(): Promise<ProjectsContent> {
       '?populate[projects][populate][0]=cover' +
       '&populate[projects][populate][1]=badges' +
       '&populate[projects][populate][2]=highlights' +
-      '&populate[projects][populate][3]=blogSection' +
-      '&populate[projects][populate][blogSection][populate][reportPdf]=true'
+      '&populate[projects][populate][3]=blogSection.reportPdf'
   )
   const d = res.data
   return {
