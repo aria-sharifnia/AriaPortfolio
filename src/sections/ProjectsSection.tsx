@@ -637,6 +637,17 @@ const ProjectModal: React.FC<ModalProps> = ({
                         </h3>
                       )}
                       <p className="mb-3">{sec.body}</p>
+                      {sec.reportPdf?.url && sec.reportLinkText && (
+                        <a
+                          href={mediaUrl(sec.reportPdf.url)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 text-teal-600 hover:text-teal-700 font-medium transition-colors underline decoration-teal-300 hover:decoration-teal-500 underline-offset-2"
+                        >
+                          {sec.reportLinkText}
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      )}
                     </section>
                   ))}
 

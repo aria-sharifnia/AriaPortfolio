@@ -5,6 +5,8 @@ import type { Media } from './about'
 export type BlogSection = {
   heading?: string
   body: string
+  reportPdf?: Media | null
+  reportLinkText?: string | null
 }
 
 export type Project = {
@@ -30,7 +32,12 @@ export type ProjectsContent = {
 
 type StrapiBadge = { label: string; type?: TagKind | string | null }
 type StrapiHighlight = { text: string }
-type StrapiBlogSection = { heading?: string | null; body: string }
+type StrapiBlogSection = {
+  heading?: string | null
+  body: string
+  reportPdf?: Media[] | null
+  reportLinkText?: string | null
+}
 
 type StrapiProjectItem = {
   id: number
@@ -75,6 +82,8 @@ const mapProject = (p: StrapiProjectItem): Project => ({
   blog: (p.blogSection ?? []).map((s) => ({
     heading: s.heading ?? undefined,
     body: s.body,
+    reportPdf: s.reportPdf?.[0] ?? null,
+    reportLinkText: s.reportLinkText ?? null,
   })),
 })
 
@@ -84,7 +93,8 @@ export async function fetchProjects(): Promise<ProjectsContent> {
       '?populate[projects][populate][0]=cover' +
       '&populate[projects][populate][1]=badges' +
       '&populate[projects][populate][2]=highlights' +
-      '&populate[projects][populate][3]=blogSection'
+      '&populate[projects][populate][3]=blogSection' +
+      '&populate[projects][populate][4]=blogSection.reportPdf'
   )
   const d = res.data
   return {
